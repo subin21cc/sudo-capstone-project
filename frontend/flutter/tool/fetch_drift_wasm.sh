@@ -21,18 +21,24 @@ if [[ -z "$DRIFT_VERSION" ]]; then
   exit 1
 fi
 
-# Pinned sqlite3 WASM build. Bump when drift's WASM ABI changes
-# (i.e. if the next `drift_worker.js` version refuses to load this
-# WASM, pick a newer sqlite3-X.Y.Z release).
-SQLITE3_WASM_TAG="${SQLITE3_WASM_TAG:-sqlite3-3.3.1}"
+# The WASM ABI is tied to the Dart `sqlite3` package version — the
+# release tag uses the same X.Y.Z. drift_worker.js (from the drift
+# release) and sqlite3.wasm (from the sqlite3.dart release) must
+# share that ABI, otherwise WASM instantiation fails with
+# `function import requires a callable` for `dart.dispatch_xFunc`.
+SQLITE3_VERSION=$(awk '/^  sqlite3:$/{f=1;next} f && /version:/{gsub(/[" ]/,"",$2); print $2; exit}' pubspec.lock)
+if [[ -z "$SQLITE3_VERSION" ]]; then
+  echo "Could not resolve sqlite3 package version from pubspec.lock" >&2
+  exit 1
+fi
 
 echo "Resolved drift version    : $DRIFT_VERSION"
-echo "Pinned sqlite3 WASM tag   : $SQLITE3_WASM_TAG"
+echo "Resolved sqlite3 version  : $SQLITE3_VERSION"
 
 mkdir -p web
 curl --fail --location --silent --show-error \
   -o web/sqlite3.wasm \
-  "https://github.com/simolus3/sqlite3.dart/releases/download/${SQLITE3_WASM_TAG}/sqlite3.wasm"
+  "https://github.com/simolus3/sqlite3.dart/releases/download/sqlite3-${SQLITE3_VERSION}/sqlite3.wasm"
 curl --fail --location --silent --show-error \
   -o web/drift_worker.js \
   "https://github.com/simolus3/drift/releases/download/drift-${DRIFT_VERSION}/drift_worker.js"

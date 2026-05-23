@@ -23,6 +23,11 @@ final dioProvider = Provider<Dio>((ref) {
       receiveTimeout: const Duration(seconds: 15),
       sendTimeout: const Duration(seconds: 10),
       contentType: Headers.jsonContentType,
+      // 4xx/5xx are normal API errors and should surface as DioException
+      // so callers can react via try/catch, not slip past `res.data!`
+      // straight into a misleading "Null check" failure in a fromJson
+      // factory.
+      validateStatus: (int? status) => status != null && status < 400,
     ),
   );
 
