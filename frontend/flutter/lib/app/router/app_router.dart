@@ -1,9 +1,12 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:oncare/app/router/main_shell.dart';
+import 'package:oncare/app/router/nav_logger_observer.dart';
 import 'package:oncare/app/router/routes.dart';
 import 'package:oncare/core/config/app_config.dart';
+import 'package:oncare/core/logging/app_logger.dart';
 import 'package:oncare/design_system/catalog/ui_catalog_page.dart';
 import 'package:oncare/features/ai_coach/presentation/pages/ai_coach_page.dart';
 import 'package:oncare/features/auth/presentation/pages/sign_in_page.dart';
@@ -17,10 +20,16 @@ import 'package:oncare/features/place/presentation/pages/place_page.dart';
 /// Single source of truth for the app's routing tree. The `config`
 /// is read once at build time — dev-only routes (UI catalog) are
 /// excluded from prod builds.
-GoRouter buildAppRouter({required AppConfig config}) {
+GoRouter buildAppRouter({
+  required AppConfig config,
+  NavigatorObserver? observer,
+}) {
   return GoRouter(
     initialLocation: AppRoutes.dashboard,
     debugLogDiagnostics: !config.isProd,
+    observers: observer == null
+        ? const <NavigatorObserver>[]
+        : <NavigatorObserver>[observer],
     routes: <RouteBase>[
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -88,5 +97,8 @@ GoRouter buildAppRouter({required AppConfig config}) {
 /// Riverpod-managed router. Rebuilds if AppConfig is ever swapped.
 final appRouterProvider = Provider<GoRouter>((ref) {
   final config = ref.watch(appConfigProvider);
-  return buildAppRouter(config: config);
+  final observer = config.isProd
+      ? null
+      : NavLoggerObserver(ref.watch(appLoggerProvider));
+  return buildAppRouter(config: config, observer: observer);
 });
