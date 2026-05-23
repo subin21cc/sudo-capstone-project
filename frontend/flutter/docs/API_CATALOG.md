@@ -1,0 +1,284 @@
+# Backend API Catalog — Oncare Flutter ⇆ FastAPI
+
+> 이 문서는 현재 Flutter front-end의 도메인 모델/리포지토리를 기준으로
+> 백엔드(FastAPI)가 노출해야 할 REST endpoint를 정리합니다. 모든 경로는
+> `${API_BASE_URL}/api/v1/...` 기준이며, 인증은 `Authorization: Bearer
+> <access_token>` 헤더를 사용합니다.
+
+| 베이스 | `${API_BASE_URL}/api/v1` |
+| --- | --- |
+| 인증 | `Authorization: Bearer <jwt>` (POST /auth/social 이후 발급) |
+| 응답 | `application/json`, snake_case 권장 (Flutter 측에서 camelCase로 매핑) |
+| 시간 | ISO 8601 (`2026-05-20T08:00:00+09:00`) |
+| 오류 | `{code, message, details?}` + HTTP status (`core/errors/app_error.dart` 매핑) |
+
+---
+
+## 1. Auth (Q4: Apple / Google / Kakao / Naver)
+
+| Method | Path | Body | 응답 | Flutter 사용처 |
+| --- | --- | --- | --- | --- |
+| POST | `/auth/social` | `{provider, id_token, nonce?}` | `{access_token, refresh_token, user: UserProfile}` | `MockAuthRepository.signIn` |
+| POST | `/auth/refresh` | `{refresh_token}` | `{access_token, refresh_token}` | dio interceptor (Stage 4 후속) |
+| POST | `/auth/logout` | — | `204` | `signOut` |
+
+`provider` enum: `apple | google | kakao | naver` (소문자, `AuthProvider.name`).
+
+---
+
+## 2. Users / Me
+
+| Method | Path | 응답 | Flutter 사용처 |
+| --- | --- | --- | --- |
+| GET | `/users/me` | `UserProfile { id, name, email, avatar_url? }` | `AuthUser`, MyHealth `ProfileCard` |
+| PATCH | `/users/me` | `UserProfile` | (설정 페이지, 후속) |
+| GET | `/users/me/health` | `MyHealthState` payload | `MockMyHealthRepository.fetchState` |
+| GET | `/users/me/points` | `{ points, rank, leaderboard?[] }` | MyHealth `PointsCard` |
+
+`MyHealthState` payload (한 endpoint로 조합해 반환):
+
+```json
+{
+  "profile": { "name": "김민수", "email": "minsu@oncare.com" },
+  "risk":    { "title": "...", "body": "...", "level": "medium" },
+  "indicators": [
+    { "kind": "weight", "label": "체중", "latest_value": "68.2",
+      "unit": "kg", "delta_text": "-1.2kg (지난주 대비)",
+      "improving": true, "last_7_days": [0.95, 0.92, ...] }
+  ],
+  "activity_points": 1240,
+  "activity_rank": 14,
+  "settings": [{ "label": "개인 정보", "icon": "👤" }, ...]
+}
+```
+
+---
+
+## 3. Dashboard
+
+| Method | Path | Query | 응답 | Flutter 사용처 |
+| --- | --- | --- | --- | --- |
+| GET | `/dashboard/summary` | `?date=YYYY-MM-DD` (선택) | `DashboardSummary` | `MockDashboardRepository.fetchSummary` |
+
+`DashboardSummary` payload:
+
+```json
+{
+  "indicators": [
+    { "label": "칼로리", "current": 1170, "max": 2000,
+      "unit": "kcal", "over_budget": false }
+  ],
+  "diet_entries": 2,
+  "exercise_minutes": 45,
+  "today_schedule": [
+    { "time": "10:00", "title": "병원 정기검진", "emoji": "🏥" }
+  ],
+  "week_score": 85,
+  "week_score_delta": 12,
+  "sodium_warning": "오늘의 나트륨 섭취량이 높아요..."
+}
+```
+
+서버에서는 사실 여러 source(vitals + diet + exercise + schedule)를
+조합하므로, **server-side aggregation endpoint**로 두는 게 가장 깔끔.
+
+---
+
+## 4. Diet
+
+| Method | Path | Body / Query | 응답 | Flutter 사용처 |
+| --- | --- | --- | --- | --- |
+| GET | `/diet/days/today` | — | `DietDay` | `MockDietRepository.fetchToday` |
+| GET | `/diet/days/{date}` | `date=YYYY-MM-DD` | `DietDay` | (캘린더 진입 시) |
+| POST | `/diet/entries` | `DietEntry` (without id) | 생성된 `DietEntry` | FAB "식단 추가" |
+| PATCH | `/diet/entries/{id}` | partial `DietEntry` | 갱신된 entry | 식사 수정 |
+| DELETE | `/diet/entries/{id}` | — | `204` | 식사 삭제 |
+| POST | `/diet/photo-scan` | `multipart/form-data: file` | `{candidates: FoodItem[]}` | (Stage 4 후속 — 카메라) |
+
+`DietEntry`:
+```json
+{
+  "id": "...",
+  "meal_type": "breakfast",  // breakfast|lunch|dinner|snack
+  "time_label": "08:20",
+  "foods": [{ "name": "오트밀", "calories": 220 }],
+  "total_calories": 315,
+  "sodium_mg": 380,
+  "sugar_g": 18
+}
+```
+
+`DietDay`: `entries[] + totals + macros + ai_coach_message`.
+
+---
+
+## 5. Exercise
+
+| Method | Path | Body / Query | 응답 | Flutter 사용처 |
+| --- | --- | --- | --- | --- |
+| GET | `/exercise/weeks/current` | — | `ExerciseWeek` | `MockExerciseRepository.fetchThisWeek` |
+| GET | `/exercise/weeks/{week_start}` | `?week_start=YYYY-MM-DD` (월요일) | `ExerciseWeek` | (주간 이동) |
+| POST | `/exercise/sessions` | `ExerciseSession` | 생성된 session | "운동 추가" |
+| PATCH | `/exercise/sessions/{id}` | partial | 갱신 | |
+| DELETE | `/exercise/sessions/{id}` | — | `204` | |
+
+`ExerciseSession`:
+```json
+{
+  "id": "...",
+  "day_label": "월", "started_at": "2026-05-12T08:00:00+09:00",
+  "type": "cardio",          // cardio|strength|yoga|walking
+  "minutes": 30,
+  "calories": 250
+}
+```
+
+`ExerciseWeek`: `sessions[] + daily_minutes + day_labels + totals + streak_days + ai_coach_message`.
+
+---
+
+## 6. Vitals (Quick Input)
+
+| Method | Path | Body | 응답 | Flutter 사용처 |
+| --- | --- | --- | --- | --- |
+| POST | `/vitals/weight` | `{kg: number, recorded_at: iso}` | `{id, ...}` | Dashboard quick-input |
+| POST | `/vitals/blood-pressure` | `{systolic, diastolic, recorded_at}` | `{id, ...}` | Dashboard quick-input |
+| POST | `/vitals/blood-sugar` | `{mg_per_dl, recorded_at}` | `{id, ...}` | Dashboard quick-input |
+| GET | `/vitals/{kind}/history` | `?from=&to=` | `[{value, recorded_at}, ...]` | MyHealth sparkline |
+| GET | `/vitals/{kind}/latest` | — | `{value, recorded_at}` | MyHealth IndicatorTile |
+
+`kind`: `weight | blood-pressure | blood-sugar`.
+
+---
+
+## 7. Schedule / Events
+
+| Method | Path | Body / Query | 응답 | Flutter 사용처 |
+| --- | --- | --- | --- | --- |
+| GET | `/schedule/events` | `?from=YYYY-MM-DD&to=YYYY-MM-DD` | `ScheduleEvent[]` | Calendar 모달 |
+| GET | `/schedule/events` | `?date=YYYY-MM-DD` | 해당 일자 events | "오늘의 일정" |
+| POST | `/schedule/events` | `ScheduleEvent` (without id) | 생성된 event | "일정 추가" |
+| PATCH | `/schedule/events/{id}` | partial | 갱신 | "수정" |
+| DELETE | `/schedule/events/{id}` | — | `204` | "삭제" |
+
+`ScheduleEvent`:
+```json
+{
+  "id": "...",
+  "title": "병원 정기검진",
+  "date": "2026-05-14",
+  "time": "10:00",
+  "category": "hospital",   // hospital|exercise|meal|medication|other
+  "emoji": "🏥",
+  "color_hint": "#FEE2E2"
+}
+```
+
+---
+
+## 8. Notifications
+
+| Method | Path | Query / Body | 응답 | Flutter 사용처 |
+| --- | --- | --- | --- | --- |
+| GET | `/notifications` | `?unread_only=true` | `AlertItem[]` | Notification 패널 |
+| GET | `/notifications/unread-count` | — | `{count: int}` | Header bell dot |
+| PATCH | `/notifications/{id}` | `{read: true}` | 갱신된 item | tile tap |
+| POST | `/notifications/read-all` | — | `204` | "모두 읽음" |
+| POST | `/notifications/devices` | `{platform, token}` | `204` | FCM 등록 (Stage 후속) |
+
+`AlertItem`:
+```json
+{
+  "id": "...", "title": "...", "body": "...",
+  "time_ago": "10분 전", "created_at": "2026-05-20T07:50:00+09:00",
+  "category": "reminder",   // reminder|health_check|achievement|system
+  "read": false
+}
+```
+
+> Q9 결정상 실제 push 발송은 시뮬레이션 → 백엔드는 데이터 저장 + 클라이언트가
+> 폴링/WebSocket. 실 push 시 FCM 토큰 endpoint 추가.
+
+---
+
+## 9. AI Coach (Q7: mock)
+
+| Method | Path | Body | 응답 | Flutter 사용처 |
+| --- | --- | --- | --- | --- |
+| GET | `/ai-coach/feedback` | — | `AiCoachState` | `MockAiCoachRepository.fetchState`, AiCoachCard, AiCoachPanel |
+| POST | `/ai-coach/chat` | `{message: string, context?: dict}` | `{reply: string, suggestions?: AiSuggestion[]}` | (추후 채팅 UI) |
+
+`AiCoachState`:
+```json
+{
+  "greeting": "안녕하세요, 오늘 컨디션은 어떠세요?",
+  "suggestions": [
+    { "tag": "diet", "title": "...", "body": "..." }
+  ]
+}
+```
+
+`tag`: `diet|exercise|sleep|hydration`.
+
+> Q7: 일단은 정적 mock 응답. 실제 LLM/추천 엔진 통합은 별도 후속.
+
+---
+
+## 10. Places (Q8: Google Maps 통합 예정)
+
+| Method | Path | Query | 응답 | Flutter 사용처 |
+| --- | --- | --- | --- | --- |
+| GET | `/places/nearby` | `?lat=&lng=&category=&radius_m=1000` | `Place[]` | Place 페이지 |
+| GET | `/places/{id}` | — | `Place` (상세) | (place 상세, 후속) |
+
+`Place`:
+```json
+{
+  "id": "...", "name": "강남세브란스 가정의학과",
+  "category": "medical",       // medical|fitness|healthy_food|pharmacy
+  "address": "...",
+  "distance_meters": 420,
+  "lat": 37.4979, "lng": 127.0276
+}
+```
+
+---
+
+## 11. Health Check
+
+| Method | Path | 응답 |
+| --- | --- | --- |
+| GET | `/healthz` | `{status: "ok", version: "..."}` |
+| GET | `/version` | `{api_version, commit_sha}` |
+
+`MockApiInterceptor`의 `GET /ping → {message: "pong (mock)"}`도 dev/test
+용으로 살려두면 좋습니다.
+
+---
+
+## 12. 우선순위 (FastAPI 구현 단계 제안)
+
+| 단계 | 엔드포인트 | 이유 |
+| --- | --- | --- |
+| **MVP-1** | `GET /healthz`, `GET /dashboard/summary`, `GET /diet/days/today`, `GET /exercise/weeks/current`, `GET /users/me/health` | 첫 빌드에서 4탭 모두 데이터를 그리는 데 필요 |
+| **MVP-2** | Vitals POST, Notifications GET/PATCH, Schedule GET/POST | 인터랙티브 카드들이 실제 데이터를 만들 수 있게 |
+| **MVP-3** | Auth (social/refresh/logout), Users PATCH, AI Coach | 실 사용자 분리 + 보안 |
+| **MVP-4** | Diet/Exercise CRUD 전체, Places, photo-scan | 본격 기록 + 통계 |
+
+---
+
+## 13. 명명/스키마 노트 (FastAPI 측)
+
+- **snake_case** 필드 (Pydantic의 `alias_generator` 또는 응답 serializer로
+  통일). Flutter 측은 `freezed` + `@JsonKey(name: '...')` 또는 매뉴얼 매핑.
+- **DateTime**: 모두 ISO 8601 + timezone. Asia/Seoul 기준 UTC offset.
+- **ID**: UUID v4 권장 (`str(uuid4())`).
+- **Pagination**: `?cursor=&limit=` 또는 `?page=&size=` 중 일관되게 — 권장
+  `cursor` (notifications/schedule 역방향 스크롤 친화적).
+- **Errors**:
+  ```json
+  { "code": "validation_error",
+    "message": "weight must be > 0",
+    "details": { "field": "kg" } }
+  ```
+  HTTP code: 400/401/403/404/409/422/500. `AppError.fromDio`가 이걸 맵핑.
