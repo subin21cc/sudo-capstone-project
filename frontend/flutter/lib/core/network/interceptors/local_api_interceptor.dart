@@ -32,6 +32,7 @@ class LocalApiInterceptor extends Interceptor {
     'GET /healthz': _healthz,
     'GET /version': _version,
     'GET /diet/days/today': _dietToday,
+    'GET /exercise/weeks/current': _exerciseCurrentWeek,
     // Vitals — three fixed kinds (weight | blood-pressure | blood-sugar).
     'POST /vitals/weight': _vitalsSubmit,
     'POST /vitals/blood-pressure': _vitalsSubmit,
@@ -152,6 +153,79 @@ class LocalApiInterceptor extends Interceptor {
     return '${now.year.toString().padLeft(4, '0')}-'
         '${now.month.toString().padLeft(2, '0')}-'
         '${now.day.toString().padLeft(2, '0')}';
+  }
+
+  // ---- Exercise ----
+
+  static const List<String> _weekdayLabels = <String>[
+    '월',
+    '화',
+    '수',
+    '목',
+    '금',
+    '토',
+    '일',
+  ];
+
+  Future<Response<Object?>> _exerciseCurrentWeek(RequestOptions options) async {
+    final weekStart = _mondayOfThisWeekString();
+    final rows = await (_db.select(
+      _db.exerciseSessions,
+    )..where((t) => t.weekStart.equals(weekStart))).get();
+
+    // Aggregate minutes per day-label so the bar chart can render even
+    // when a day is missing (React mock left Tue=0).
+    final perDay = <String, int>{
+      for (final l in _weekdayLabels) l: 0,
+    };
+    int totalMinutes = 0;
+    int totalCalories = 0;
+    final sessionsJson = <Map<String, Object?>>[];
+
+    for (final r in rows) {
+      totalMinutes += r.minutes;
+      totalCalories += r.calories;
+      perDay.update(
+        r.dayLabel,
+        (m) => m + r.minutes,
+        ifAbsent: () => r.minutes,
+      );
+      sessionsJson.add(<String, Object?>{
+        'id': r.id,
+        'day_label': r.dayLabel,
+        'type': r.type,
+        'minutes': r.minutes,
+        'calories': r.calories,
+      });
+    }
+
+    final dailyMinutes = <num>[
+      for (final l in _weekdayLabels) perDay[l] ?? 0,
+    ];
+
+    // "Streak" = consecutive non-zero days ending at today's weekday
+    // (or simply the count of non-zero days for the simple mock).
+    final streak = dailyMinutes.where((m) => m > 0).length;
+
+    return _ok(options, <String, Object?>{
+      'sessions': sessionsJson,
+      'daily_minutes': dailyMinutes,
+      'day_labels': _weekdayLabels,
+      'total_minutes': totalMinutes,
+      'total_calories': totalCalories,
+      'streak_days': streak,
+      'ai_coach_message': totalMinutes >= 240
+          ? '주간 운동 목표 80%를 달성했어요! 일요일에 가볍게 걷기를 더해 100%를 채워봐요.'
+          : '이번 주는 운동량이 조금 부족해요. 가벼운 산책부터 다시 시작해 봐요.',
+    });
+  }
+
+  String _mondayOfThisWeekString() {
+    final now = DateTime.now();
+    final monday = DateTime(now.year, now.month, now.day - (now.weekday - 1));
+    return '${monday.year.toString().padLeft(4, '0')}-'
+        '${monday.month.toString().padLeft(2, '0')}-'
+        '${monday.day.toString().padLeft(2, '0')}';
   }
 
   // ---- Vitals ----
