@@ -290,6 +290,11 @@ class LocalApiInterceptor extends Interceptor {
     // Aggregate minutes per day-label so the bar chart can render even
     // when a day is missing (React mock left Tue=0).
     final perDay = <String, int>{for (final l in _weekdayLabels) l: 0};
+    final perDayCardio = <String, int>{for (final l in _weekdayLabels) l: 0};
+    final perDayStrength = <String, int>{for (final l in _weekdayLabels) l: 0};
+    final perDayStretching = <String, int>{
+      for (final l in _weekdayLabels) l: 0,
+    };
     int totalMinutes = 0;
     int totalCalories = 0;
     final sessionsJson = <Map<String, Object?>>[];
@@ -302,16 +307,49 @@ class LocalApiInterceptor extends Interceptor {
         (m) => m + r.minutes,
         ifAbsent: () => r.minutes,
       );
+      final bucket = switch (r.type) {
+        'cardio' || 'walking' => perDayCardio,
+        'strength' => perDayStrength,
+        'yoga' || 'stretching' => perDayStretching,
+        _ => perDayCardio,
+      };
+      bucket.update(
+        r.dayLabel,
+        (m) => m + r.minutes,
+        ifAbsent: () => r.minutes,
+      );
       sessionsJson.add(<String, Object?>{
         'id': r.id,
         'day_label': r.dayLabel,
         'type': r.type,
         'minutes': r.minutes,
         'calories': r.calories,
+        // Date/time labels are synthesized here so the React-style
+        // session list ("오늘", "어제", "MM월 DD일") works without
+        // a schema migration on the drift `exerciseSessions` table.
+        'date_label': _dateLabelForDayLabel(r.dayLabel),
+        'time_label': _defaultTimeLabel(r.type),
+        'items': _defaultItems(r.type),
       });
     }
+    // Most recent first so the prototype's grouping (today / yesterday
+    // / older) reads top-down.
+    sessionsJson.sort((a, b) {
+      final ai = _weekdayLabels.indexOf(a['day_label']! as String);
+      final bi = _weekdayLabels.indexOf(b['day_label']! as String);
+      return bi - ai;
+    });
 
     final dailyMinutes = <num>[for (final l in _weekdayLabels) perDay[l] ?? 0];
+    final cardioSeries = <num>[
+      for (final l in _weekdayLabels) perDayCardio[l] ?? 0,
+    ];
+    final strengthSeries = <num>[
+      for (final l in _weekdayLabels) perDayStrength[l] ?? 0,
+    ];
+    final stretchingSeries = <num>[
+      for (final l in _weekdayLabels) perDayStretching[l] ?? 0,
+    ];
 
     // "Streak" = consecutive non-zero days ending at today's weekday
     // (or simply the count of non-zero days for the simple mock).
@@ -320,6 +358,9 @@ class LocalApiInterceptor extends Interceptor {
     return _ok(options, <String, Object?>{
       'sessions': sessionsJson,
       'daily_minutes': dailyMinutes,
+      'cardio_minutes': cardioSeries,
+      'strength_minutes': strengthSeries,
+      'stretching_minutes': stretchingSeries,
       'day_labels': _weekdayLabels,
       'total_minutes': totalMinutes,
       'total_calories': totalCalories,
@@ -329,6 +370,38 @@ class LocalApiInterceptor extends Interceptor {
           : '이번 주는 운동량이 조금 부족해요. 가벼운 산책부터 다시 시작해 봐요.',
     });
   }
+
+  /// "오늘 / 어제 / N요일 / MM월 DD일" for a given weekday label.
+  String _dateLabelForDayLabel(String dayLabel) {
+    final now = DateTime.now();
+    final todayIdx = now.weekday - 1; // 0=Mon
+    final dayIdx = _weekdayLabels.indexOf(dayLabel);
+    if (dayIdx < 0) return dayLabel;
+    final delta = todayIdx - dayIdx;
+    if (delta == 0) return '오늘';
+    if (delta == 1) return '어제';
+    if (delta > 1 && delta <= 6) {
+      final date = now.subtract(Duration(days: delta));
+      return '${date.month}월 ${date.day}일';
+    }
+    return '$dayLabel요일';
+  }
+
+  String _defaultTimeLabel(String type) => switch (type) {
+    'cardio' => '07:30',
+    'strength' => '18:00',
+    'yoga' || 'stretching' => '20:00',
+    'walking' => '12:00',
+    _ => '15:00',
+  };
+
+  List<String> _defaultItems(String type) => switch (type) {
+    'cardio' => const <String>['러닝머신 30분'],
+    'strength' => const <String>['스쿼트 3세트', '데드리프트 3세트'],
+    'yoga' || 'stretching' => const <String>['전신 스트레칭 20분'],
+    'walking' => const <String>['공원 산책'],
+    _ => const <String>[],
+  };
 
   // ---- Schedule ----
 
