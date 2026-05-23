@@ -14,7 +14,7 @@ Future<T?> showRightSlidePanel<T>(
     barrierLabel: '닫기',
     barrierColor: Colors.black54,
     transitionDuration: const Duration(milliseconds: 240),
-    pageBuilder: (BuildContext ctx, _, __) {
+    pageBuilder: (BuildContext ctx, _, _) {
       return SafeArea(
         child: Align(
           alignment: Alignment.centerRight,
@@ -29,7 +29,7 @@ Future<T?> showRightSlidePanel<T>(
       );
     },
     transitionBuilder:
-        (BuildContext _, Animation<double> anim, __, Widget child) {
+        (BuildContext _, Animation<double> anim, _, Widget child) {
           final tween = Tween<Offset>(
             begin: const Offset(1, 0),
             end: Offset.zero,

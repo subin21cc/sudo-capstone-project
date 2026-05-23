@@ -99,7 +99,7 @@ class _NotificationPanelBodyState extends ConsumerState<NotificationPanelBody> {
               const Spacer(),
               Switch(
                 value: _unreadOnly,
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
                 onChanged: (bool v) => setState(() => _unreadOnly = v),
               ),
             ],
