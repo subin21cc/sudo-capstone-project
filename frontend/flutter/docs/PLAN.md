@@ -365,3 +365,34 @@ features/dashboard/
 - 각 **Phase** 종료 시 → `git commit` (push 없음).
 - 각 **Stage** 종료 시 → `git commit && git push origin main`.
 - 자세한 규약: [CONTRIBUTING_NOTES.md](./CONTRIBUTING_NOTES.md).
+
+### 9.5 2026-05-20 — Stage 9 (Local backend) 결정 사항
+
+Stage 9 시작 전 사용자가 결정한 6개 항목 (D1..D6).
+
+| # | 항목 | 결정 | 구현 |
+| --- | --- | --- | --- |
+| D1 | 더미 백엔드 방식 | **drift 기반 LocalApiInterceptor (옵션 C)** | `core/network/interceptors/local_api_interceptor.dart` — `_routes` 맵 + per-handler 메서드. `USE_MOCK_API=true` 일 때 wire. |
+| D2 | 케이스 매핑 | **snake_case (FastAPI Pydantic alias 컨벤션)** ↔ **camelCase (Dart)** | `core/network/case_mapper.dart` — `toCamelCaseJson` / `toSnakeCaseJson` 재귀 변환. fromJson 팩토리들이 snake_case 키를 읽음. |
+| D3 | drift 스키마 v2 | **6개 테이블** (AppKeyValues / DietEntries / ExerciseSessions / Vitals / ScheduleEvents / NotificationItems) | `core/storage/app_database.dart` schemaVersion=2 + onUpgrade 마이그레이션. |
+| D4 | seed 정책 | **첫 실행 1회만** (`seeded_v1` 플래그) | `core/storage/seed_data.dart` `seedIfEmpty(db)`. React mock 데이터를 그대로 주입. |
+| D5 | swap 전략 | **interceptor 우선 dispatch → 미매핑 path는 fall-through** | `LocalApiInterceptor.onRequest()` 가 `null` 반환 시 다음 인터셉터로. `USE_MOCK_API=false` 빌드면 FastAPI에 그대로 도달. |
+| D6 | 테스트 | **각 endpoint LocalApi 단위 + 기존 controller mock-repo 전환** | `test/core/network/local_api_interceptor_*_test.dart` (7 파일) + 각 feature controller test override. |
+
+### 9.6 Stage 9 — 엔드포인트 매트릭스
+
+| Phase | 엔드포인트 | drift 의존 테이블 | 비고 |
+| --- | --- | --- | --- |
+| 9.4 | `GET /diet/days/today` | DietEntries | 칼로리/나트륨/당류 누계 |
+| 9.5 | `POST /vitals/{kind}`, `GET /vitals/{kind}/latest` | Vitals | weight / blood-pressure / blood-sugar 3종 |
+| 9.6 | `GET /exercise/weeks/current` | ExerciseSessions | 월~일 daily_minutes 집계 + streak |
+| 9.7 | `GET /schedule/events?date=`, `GET /notifications` | ScheduleEvents, NotificationItems | time_ago Korean formatter |
+| 9.8 | `GET /dashboard/summary` | Diet + Exercise + Vitals + Schedule | week_score 휴리스틱 (50 + cal*25 + ex*25) |
+| 9.9 | `GET /ai-coach/feedback`, `GET /users/me`, `GET /users/me/health`, `GET /places/nearby` | (정적) | drift 사용 안 함 — 정적 demo payload |
+| — | `GET /ping`, `GET /healthz`, `GET /version` | — | 기존 헬스체크 (Stage 9.3에서 도입) |
+
+### 9.7 FastAPI 전환 시 (D5 swap)
+
+- 빌드 명령에 `--dart-define=USE_MOCK_API=false --dart-define=API_BASE_URL=https://api.oncare.dev` 추가 → `LocalApiInterceptor`가 wire되지 않고 모든 호출이 FastAPI로 라우팅.
+- 응답 contract는 그대로 (snake_case + 동일 JSON shape). fromJson 팩토리는 재사용.
+- 검증: integration test (smoke) → `assets/api/contract_*.json` 으로 fixture를 두고 LocalApi 응답과 동일한 shape인지 확인.

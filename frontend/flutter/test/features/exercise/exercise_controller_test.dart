@@ -1,11 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:oncare/features/exercise/data/repositories/mock_exercise_repository.dart';
 import 'package:oncare/features/exercise/presentation/controllers/exercise_controller.dart';
 
 void main() {
   test('exerciseWeekProvider provides 7 days, sane totals', () async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: <Override>[
+        // Production repo is DioExerciseRepository (needs dio + db);
+        // unit test only needs the React-shaped in-memory mock.
+        exerciseRepositoryProvider.overrideWithValue(
+          const MockExerciseRepository(),
+        ),
+      ],
+    );
     addTearDown(container.dispose);
     final week = await container.read(exerciseWeekProvider.future);
     expect(week.dailyMinutes.length, 7);

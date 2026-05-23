@@ -6,6 +6,15 @@ import 'package:logger/logger.dart';
 import 'package:oncare/app/app.dart';
 import 'package:oncare/core/config/app_config.dart';
 import 'package:oncare/core/logging/app_logger.dart';
+import 'package:oncare/features/dashboard/data/repositories/mock_dashboard_repository.dart';
+import 'package:oncare/features/dashboard/domain/repositories/dashboard_repository.dart';
+import 'package:oncare/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:oncare/features/diet/data/repositories/mock_diet_repository.dart';
+import 'package:oncare/features/diet/domain/repositories/diet_repository.dart';
+import 'package:oncare/features/diet/presentation/controllers/diet_controller.dart';
+import 'package:oncare/features/exercise/data/repositories/mock_exercise_repository.dart';
+import 'package:oncare/features/exercise/domain/repositories/exercise_repository.dart';
+import 'package:oncare/features/exercise/presentation/controllers/exercise_controller.dart';
 import 'package:oncare/gen/l10n/app_localizations.dart';
 import 'package:oncare/shared/services/locale_provider.dart';
 
@@ -21,6 +30,22 @@ void main() {
         overrides: <Override>[
           appConfigProvider.overrideWithValue(config),
           appLoggerProvider.overrideWithValue(Logger(level: Level.off)),
+          // Diet repo defaults to DioDietRepository (Stage 9) which
+          // needs a real dio+db. Swap to the in-memory mock here.
+          dietRepositoryProvider.overrideWithValue(
+            const MockDietRepository() as DietRepository,
+          ),
+          // Same reason — exercise repo defaults to DioExerciseRepository
+          // (Stage 9.6); swap to the in-memory mock here.
+          exerciseRepositoryProvider.overrideWithValue(
+            const MockExerciseRepository() as ExerciseRepository,
+          ),
+          // Dashboard summary defaults to DioDashboardRepository (Stage
+          // 9.8); the smoke test only inspects the nav, so the mock is
+          // plenty.
+          dashboardRepositoryProvider.overrideWithValue(
+            const MockDashboardRepository() as DashboardRepository,
+          ),
           if (locale != null) localeProvider.overrideWith((ref) => locale),
         ],
         child: const OncareApp(),
