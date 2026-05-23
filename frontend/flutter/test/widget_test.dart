@@ -10,6 +10,7 @@ void main() {
     const config = AppConfig(
       environment: Environment.dev,
       apiBaseUrl: 'https://dev.api.test',
+      useMockApi: true,
     );
 
     await tester.pumpWidget(
@@ -36,6 +37,7 @@ void main() {
     const config = AppConfig(
       environment: Environment.dev,
       apiBaseUrl: 'https://dev.api.test',
+      useMockApi: true,
     );
 
     await tester.pumpWidget(
