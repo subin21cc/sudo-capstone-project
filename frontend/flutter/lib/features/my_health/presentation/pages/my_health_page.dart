@@ -28,12 +28,9 @@ class MyHealthPage extends ConsumerWidget {
           Expanded(
             child: async.when(
               data: (s) => _Body(state: s),
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (Object e, _) => ErrorView(
-                error: e is AppError
-                    ? e
-                    : UnknownError(message: e.toString()),
+                error: e is AppError ? e : UnknownError(message: e.toString()),
                 onRetry: () => ref.invalidate(myHealthStateProvider),
               ),
             ),
@@ -72,10 +69,7 @@ class _Body extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
             ],
             const SizedBox(height: AppSpacing.md),
-            _PointsCard(
-              points: state.activityPoints,
-              rank: state.activityRank,
-            ),
+            _PointsCard(points: state.activityPoints, rank: state.activityRank),
             const SizedBox(height: AppSpacing.lg),
             const _SectionTitle('설정'),
             const SizedBox(height: AppSpacing.sm),
@@ -161,10 +155,7 @@ class _ProfileCard extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(
-            Icons.chevron_right,
-            color: AppColors.mutedForeground,
-          ),
+          const Icon(Icons.chevron_right, color: AppColors.mutedForeground),
         ],
       ),
     );
@@ -235,10 +226,7 @@ class _IndicatorTile extends StatelessWidget {
             width: 80,
             height: 40,
             child: CustomPaint(
-              painter: _SparklinePainter(
-                values: trend.last7Days,
-                color: color,
-              ),
+              painter: _SparklinePainter(values: trend.last7Days, color: color),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -274,18 +262,14 @@ class _IndicatorTile extends StatelessWidget {
                 Row(
                   children: <Widget>[
                     Icon(
-                      trend.improving
-                          ? Icons.trending_down
-                          : Icons.trending_up,
+                      trend.improving ? Icons.trending_down : Icons.trending_up,
                       size: 14,
                       color: color,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       trend.deltaText,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: color,
-                      ),
+                      style: theme.textTheme.bodySmall?.copyWith(color: color),
                     ),
                   ],
                 ),
@@ -360,11 +344,7 @@ class _PointsCard extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
-          const Icon(
-            Icons.workspace_premium,
-            color: Colors.white,
-            size: 28,
-          ),
+          const Icon(Icons.workspace_premium, color: Colors.white, size: 28),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
