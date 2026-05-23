@@ -12,6 +12,8 @@
 - [docs/DESIGN_TOKENS.md](./docs/DESIGN_TOKENS.md) — 디자인 토큰 초안 (Figma 접근 후 보강)
 - [docs/CONTRIBUTING_NOTES.md](./docs/CONTRIBUTING_NOTES.md) — 커밋 컨벤션, AI co-author trailer 미사용 정책, Phase/Stage 커밋·푸시 케이던스
 - [docs/RELEASE.md](./docs/RELEASE.md) — Web/Android/iOS 수동 릴리즈 절차, SemVer 정책
+- [docs/API_CATALOG.md](./docs/API_CATALOG.md) — FastAPI 백엔드 endpoint 목록 (front 데이터 흐름 기준)
+- [docs/DUMMY_BACKEND.md](./docs/DUMMY_BACKEND.md) — 실 백엔드 전까지 dummy backend 옵션 비교 + 권장(drift backed)
 - [CHANGELOG.md](./CHANGELOG.md) — 버전별 변경 이력
 
 ## 빌드 / 실행
