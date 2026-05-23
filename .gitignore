@@ -1,2 +1,20 @@
 .env
 .venv/
+
+# OS / editor cruft
+.DS_Store
+*.swp
+
+# JetBrains IDE settings — every nested .idea dir
+.idea/
+
+# Claude Code / Cowork tooling (per-session launch configs, etc.)
+.claude/
+
+# Node tooling (only `@upstash/redis` is in package.json — lockfile and
+# modules are generated per machine and shouldn't be tracked).
+node_modules/
+package-lock.json
+
+# Flutter golden test diff outputs (regenerated locally on failure).
+**/test/golden/failures/
