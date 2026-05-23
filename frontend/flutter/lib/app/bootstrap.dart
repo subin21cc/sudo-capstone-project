@@ -7,7 +7,9 @@ import 'package:oncare/app/app.dart';
 import 'package:oncare/core/config/app_config.dart';
 import 'package:oncare/core/logging/app_logger.dart';
 import 'package:oncare/core/logging/logging_provider_observer.dart';
+import 'package:oncare/core/storage/app_database.dart';
 import 'package:oncare/core/storage/prefs_store.dart';
+import 'package:oncare/core/storage/seed_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Single entry point used by `main.dart`. Initializes binding,
@@ -25,6 +27,12 @@ Future<void> bootstrap() async {
   );
 
   final prefs = await SharedPreferences.getInstance();
+
+  // Local backend (drift-backed mock). Seed once on first run so the
+  // app boots with the React prototype's mock data even before the
+  // real FastAPI server exists. See docs/DUMMY_BACKEND.md.
+  final db = AppDatabase();
+  await seedIfEmpty(db);
 
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
@@ -49,6 +57,7 @@ Future<void> bootstrap() async {
             appConfigProvider.overrideWithValue(config),
             appLoggerProvider.overrideWithValue(logger),
             sharedPreferencesProvider.overrideWithValue(prefs),
+            appDatabaseProvider.overrideWithValue(db),
           ],
           child: const OncareApp(),
         ),

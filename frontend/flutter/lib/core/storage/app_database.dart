@@ -25,8 +25,7 @@ class DietEntries extends Table {
   IntColumn get totalCalories => integer()();
   IntColumn get sodiumMg => integer().withDefault(const Constant(0))();
   IntColumn get sugarG => integer().withDefault(const Constant(0))();
-  DateTimeColumn get createdAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
@@ -40,8 +39,7 @@ class ExerciseSessions extends Table {
   TextColumn get type => text()(); // cardio|strength|yoga|walking
   IntColumn get minutes => integer()();
   IntColumn get calories => integer()();
-  DateTimeColumn get createdAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
@@ -51,7 +49,8 @@ class ExerciseSessions extends Table {
 class Vitals extends Table {
   TextColumn get id => text()();
   TextColumn get kind => text()(); // weight|blood-pressure|blood-sugar
-  TextColumn get valueJson => text()(); // {"kg":68.2} / {"systolic":..} / {"mg_per_dl":..}
+  TextColumn get valueJson =>
+      text()(); // {"kg":68.2} / {"systolic":..} / {"mg_per_dl":..}
   DateTimeColumn get recordedAt => dateTime()();
 
   @override
@@ -64,10 +63,10 @@ class ScheduleEvents extends Table {
   TextColumn get date => text()(); // YYYY-MM-DD
   TextColumn get time => text()(); // "10:00"
   TextColumn get title => text()();
-  TextColumn get category => text()(); // hospital|exercise|meal|medication|other
+  TextColumn get category =>
+      text()(); // hospital|exercise|meal|medication|other
   TextColumn get emoji => text().withDefault(const Constant(''))();
-  TextColumn get colorHex =>
-      text().withDefault(const Constant('#E0F2F7'))();
+  TextColumn get colorHex => text().withDefault(const Constant('#E0F2F7'))();
 
   @override
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
