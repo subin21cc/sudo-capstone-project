@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:oncare/core/network/dio_client.dart';
+import 'package:oncare/features/notification/data/repositories/dio_notification_repository.dart';
 import 'package:oncare/features/notification/domain/entities/alert_item.dart';
+import 'package:oncare/features/notification/domain/repositories/notification_repository.dart';
 
 class NotificationController extends StateNotifier<NotificationState> {
   NotificationController() : super(_seed());
@@ -76,3 +79,20 @@ final notificationControllerProvider =
       (ref) => NotificationController(),
       name: 'notifications',
     );
+
+/// Network-side notification source. Production code talks to dio →
+/// LocalApiInterceptor (drift) → FastAPI. Tests override this with a
+/// `MockNotificationRepository`.
+final notificationRepositoryProvider = Provider<NotificationRepository>(
+  (ref) => DioNotificationRepository(ref.watch(dioProvider)),
+  name: 'notificationRepository',
+);
+
+/// FutureProvider variant of the notifications list, sourced from the
+/// repo. The legacy [notificationControllerProvider] still holds the
+/// in-session mutations (markRead / simulatePush) — wholesale unifying
+/// is intentionally deferred to keep the UI/test surface stable.
+final notificationListProvider = FutureProvider.autoDispose<List<AlertItem>>(
+  (ref) => ref.watch(notificationRepositoryProvider).fetchAll(),
+  name: 'notificationList',
+);

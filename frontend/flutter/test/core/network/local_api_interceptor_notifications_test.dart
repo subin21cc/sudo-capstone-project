@@ -1,0 +1,73 @@
+import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' show Value;
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:logger/logger.dart';
+
+import 'package:oncare/core/network/interceptors/local_api_interceptor.dart';
+import 'package:oncare/core/storage/app_database.dart';
+
+void main() {
+  late AppDatabase db;
+  late Dio dio;
+
+  setUp(() async {
+    db = AppDatabase.forTesting(NativeDatabase.memory());
+    dio = Dio(BaseOptions(baseUrl: 'https://example.test'));
+    dio.interceptors.add(LocalApiInterceptor(db, Logger(level: Level.off)));
+
+    final now = DateTime.now();
+    await db.batch((b) {
+      b.insertAll(db.notificationItems, <NotificationItemsCompanion>[
+        NotificationItemsCompanion.insert(
+          id: 'n-1',
+          createdAt: now.subtract(const Duration(minutes: 10)),
+          title: '식단 입력 알림',
+          body: '오늘 점심 입력이 비어있어요.',
+          category: 'reminder',
+        ),
+        NotificationItemsCompanion.insert(
+          id: 'n-2',
+          createdAt: now.subtract(const Duration(hours: 1)),
+          title: '운동 목표 달성',
+          body: '주간 240분 달성',
+          category: 'achievement',
+        ),
+        NotificationItemsCompanion.insert(
+          id: 'n-3',
+          createdAt: now.subtract(const Duration(days: 1)),
+          title: '서비스 점검 안내',
+          body: '내일 02:00~03:00 점검 예정입니다.',
+          category: 'system',
+          read: const Value(true),
+        ),
+      ]);
+    });
+  });
+
+  tearDown(() async {
+    await db.close();
+    dio.close();
+  });
+
+  test('GET /notifications returns rows newest-first with time_ago', () async {
+    final res = await dio.get<List<Object?>>('/notifications');
+    expect(res.statusCode, 200);
+    final list = res.data!.cast<Map<String, Object?>>();
+    expect(list.length, 3);
+    expect(list.first['id'], 'n-1');
+    expect(list.first['time_ago'], '10분 전');
+    expect(list[1]['time_ago'], '1시간 전');
+    expect(list[2]['time_ago'], '어제');
+  });
+
+  test('Read flag round-trips through the response', () async {
+    final res = await dio.get<List<Object?>>('/notifications');
+    final list = res.data!.cast<Map<String, Object?>>();
+    final byId = <String, Map<String, Object?>>{
+      for (final e in list) e['id']! as String: e,
+    };
+    expect(byId['n-1']!['read'], isFalse);
+    expect(byId['n-3']!['read'], isTrue);
+  });
+}

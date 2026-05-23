@@ -33,6 +33,8 @@ class LocalApiInterceptor extends Interceptor {
     'GET /version': _version,
     'GET /diet/days/today': _dietToday,
     'GET /exercise/weeks/current': _exerciseCurrentWeek,
+    'GET /schedule/events': _scheduleEvents,
+    'GET /notifications': _notifications,
     // Vitals — three fixed kinds (weight | blood-pressure | blood-sugar).
     'POST /vitals/weight': _vitalsSubmit,
     'POST /vitals/blood-pressure': _vitalsSubmit,
@@ -218,6 +220,64 @@ class LocalApiInterceptor extends Interceptor {
           ? '주간 운동 목표 80%를 달성했어요! 일요일에 가볍게 걷기를 더해 100%를 채워봐요.'
           : '이번 주는 운동량이 조금 부족해요. 가벼운 산책부터 다시 시작해 봐요.',
     });
+  }
+
+  // ---- Schedule ----
+
+  Future<Response<Object?>> _scheduleEvents(RequestOptions options) async {
+    // `?date=YYYY-MM-DD`. Defaults to today.
+    final date =
+        (options.queryParameters['date'] as String?) ?? _todayDateString();
+    final rows = await (_db.select(
+      _db.scheduleEvents,
+    )..where((t) => t.date.equals(date))).get();
+
+    final list = <Map<String, Object?>>[
+      for (final r in rows)
+        <String, Object?>{
+          'id': r.id,
+          'date': r.date,
+          'time': r.time,
+          'title': r.title,
+          'category': r.category,
+          'emoji': r.emoji,
+          'color_hex': r.colorHex,
+        },
+    ];
+    return _ok(options, list);
+  }
+
+  // ---- Notifications ----
+
+  Future<Response<Object?>> _notifications(RequestOptions options) async {
+    final query = _db.select(_db.notificationItems)
+      ..orderBy(<OrderClauseGenerator<$NotificationItemsTable>>[
+        (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+      ]);
+    final rows = await query.get();
+
+    final now = DateTime.now();
+    final list = <Map<String, Object?>>[
+      for (final r in rows)
+        <String, Object?>{
+          'id': r.id,
+          'title': r.title,
+          'body': r.body,
+          'category': r.category,
+          'read': r.read,
+          'created_at': r.createdAt.toIso8601String(),
+          'time_ago': _timeAgoKorean(now.difference(r.createdAt)),
+        },
+    ];
+    return _ok(options, list);
+  }
+
+  String _timeAgoKorean(Duration d) {
+    if (d.inMinutes < 1) return '방금';
+    if (d.inMinutes < 60) return '${d.inMinutes}분 전';
+    if (d.inHours < 24) return '${d.inHours}시간 전';
+    if (d.inDays == 1) return '어제';
+    return '${d.inDays}일 전';
   }
 
   String _mondayOfThisWeekString() {
