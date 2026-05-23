@@ -57,6 +57,14 @@ lib/
 ├─ shared/               # 도메인 횡단 공용 (위젯/모델/서비스)
 ├─ design_system/        # 자체 UI 키트 (토큰 + atom/molecule)
 ├─ features/             # 피처 모듈 (수직 슬라이스)
+│  ├─ auth/              # 소셜 로그인 (Apple/Google/Kakao/Naver) — Q4 결정
+│  ├─ dashboard/         # 메인 탭 1
+│  ├─ diet/              # 메인 탭 2
+│  ├─ exercise/          # 메인 탭 3
+│  ├─ my_health/         # 메인 탭 4
+│  ├─ ai_coach/
+│  ├─ notification/
+│  └─ place/             # Google Maps 통합
 ├─ l10n/                 # ARB 다국어 리소스 → flutter gen-l10n
 └─ gen/                  # 자동 생성 산출 (.g.dart, .freezed.dart, l10n.dart)
 ```
