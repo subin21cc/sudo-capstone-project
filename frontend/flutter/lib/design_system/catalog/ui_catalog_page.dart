@@ -5,6 +5,9 @@ import 'package:oncare/design_system/atoms/app_badge.dart';
 import 'package:oncare/design_system/atoms/app_button.dart';
 import 'package:oncare/design_system/atoms/app_card.dart';
 import 'package:oncare/design_system/atoms/app_input.dart';
+import 'package:oncare/design_system/molecules/chart_card.dart';
+import 'package:oncare/design_system/molecules/metric_card.dart';
+import 'package:oncare/design_system/molecules/section_header.dart';
 import 'package:oncare/design_system/tokens/colors.dart';
 import 'package:oncare/design_system/tokens/radius.dart';
 import 'package:oncare/design_system/tokens/spacing.dart';
@@ -69,8 +72,91 @@ class UiCatalogPage extends StatelessWidget {
 
           _SectionTitle('Atoms — Avatars'),
           _AvatarGallery(),
+          SizedBox(height: AppSpacing.xl),
+
+          _SectionTitle('Molecules — MetricCard'),
+          _MetricGallery(),
+          SizedBox(height: AppSpacing.xl),
+
+          _SectionTitle('Molecules — ChartCard + SectionHeader'),
+          _ChartCardSample(),
         ],
       ),
+    );
+  }
+}
+
+class _MetricGallery extends StatelessWidget {
+  const _MetricGallery();
+  @override
+  Widget build(BuildContext context) {
+    return const Wrap(
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.md,
+      children: <Widget>[
+        SizedBox(
+          width: 220,
+          child: MetricCard(
+            title: '오늘 칼로리',
+            value: '1,420',
+            unit: 'kcal',
+            delta: '+12% vs 어제',
+            deltaTone: MetricDeltaTone.positive,
+            icon: Icons.restaurant,
+            accentColor: AppColors.domainDiet,
+          ),
+        ),
+        SizedBox(
+          width: 220,
+          child: MetricCard(
+            title: '운동 시간',
+            value: '38',
+            unit: '분',
+            delta: '-5% vs 어제',
+            deltaTone: MetricDeltaTone.negative,
+            icon: Icons.fitness_center,
+            accentColor: AppColors.domainExercise,
+          ),
+        ),
+        SizedBox(
+          width: 220,
+          child: MetricCard(
+            title: '체중',
+            value: '68.2',
+            unit: 'kg',
+            delta: '-0.3 vs 지난주',
+            deltaTone: MetricDeltaTone.positive,
+            icon: Icons.favorite_outline,
+            accentColor: AppColors.domainHealth,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ChartCardSample extends StatelessWidget {
+  const _ChartCardSample();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        const SectionHeader('주간 요약'),
+        ChartCard(
+          title: 'Chart goes here',
+          height: 160,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.08),
+              borderRadius: const BorderRadius.all(AppRadius.md),
+            ),
+            child: const Center(child: Text('fl_chart widget (Phase 3.5)')),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -94,11 +180,7 @@ class _ButtonGallery extends StatelessWidget {
           variant: AppButtonVariant.ghost,
           onPressed: _noop,
         ),
-        AppButton(
-          label: 'With icon',
-          icon: Icons.bolt,
-          onPressed: _noop,
-        ),
+        AppButton(label: 'With icon', icon: Icons.bolt, onPressed: _noop),
         AppButton(label: 'Disabled', onPressed: null),
       ],
     );
