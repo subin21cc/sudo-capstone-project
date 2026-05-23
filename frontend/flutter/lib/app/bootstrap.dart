@@ -21,16 +21,18 @@ Future<void> bootstrap() async {
 
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    logger.e('FlutterError', error: details.exception, stackTrace: details.stack);
+    logger.e(
+      'FlutterError',
+      error: details.exception,
+      stackTrace: details.stack,
+    );
   };
 
   runZonedGuarded<void>(
     () {
       runApp(
         ProviderScope(
-          overrides: <Override>[
-            appConfigProvider.overrideWithValue(config),
-          ],
+          overrides: <Override>[appConfigProvider.overrideWithValue(config)],
           child: const OncareApp(),
         ),
       );

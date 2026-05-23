@@ -13,9 +13,7 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: <Override>[
-          appConfigProvider.overrideWithValue(config),
-        ],
+        overrides: <Override>[appConfigProvider.overrideWithValue(config)],
         child: const OncareApp(),
       ),
     );

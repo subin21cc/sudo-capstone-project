@@ -69,10 +69,7 @@ class BootstrapPlaceholder extends ConsumerWidget {
   Widget _kv(ThemeData theme, String k, String v) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: Text(
-        '$k: $v',
-        style: theme.textTheme.bodyMedium,
-      ),
+      child: Text('$k: $v', style: theme.textTheme.bodyMedium),
     );
   }
 }
