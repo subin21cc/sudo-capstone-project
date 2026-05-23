@@ -1,16 +1,150 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:oncare/core/errors/app_error.dart';
+import 'package:oncare/design_system/atoms/app_badge.dart';
+import 'package:oncare/design_system/atoms/app_card.dart';
+import 'package:oncare/design_system/molecules/section_header.dart';
+import 'package:oncare/design_system/tokens/colors.dart';
+import 'package:oncare/design_system/tokens/radius.dart';
+import 'package:oncare/design_system/tokens/spacing.dart';
+import 'package:oncare/features/place/domain/entities/place.dart';
+import 'package:oncare/features/place/presentation/controllers/place_controller.dart';
 import 'package:oncare/gen/l10n/app_localizations.dart';
+import 'package:oncare/shared/widgets/error_view.dart';
 
-class PlacePage extends StatelessWidget {
+({String label, AppBadgeTone tone}) _categoryDisplay(PlaceCategory c) =>
+    switch (c) {
+      PlaceCategory.medical => (label: '의료', tone: AppBadgeTone.info),
+      PlaceCategory.fitness => (label: '운동', tone: AppBadgeTone.success),
+      PlaceCategory.healthyFood => (label: '식단', tone: AppBadgeTone.warning),
+      PlaceCategory.pharmacy => (label: '약국', tone: AppBadgeTone.neutral),
+    };
+
+class PlacePage extends ConsumerWidget {
   const PlacePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    final async = ref.watch(nearbyPlacesProvider);
     return Scaffold(
       appBar: AppBar(title: Text(l.pagePlaceTitle)),
-      body: Center(child: Text(l.placeholderPlace)),
+      body: async.when(
+        data: (places) => _Body(places: places),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (Object e, _) => ErrorView(
+          error: e is AppError ? e : UnknownError(message: e.toString()),
+          onRetry: () => ref.invalidate(nearbyPlacesProvider),
+        ),
+      ),
+    );
+  }
+}
+
+class _Body extends StatelessWidget {
+  const _Body({required this.places});
+  final List<Place> places;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      children: <Widget>[
+        const _MapPlaceholder(),
+        const SizedBox(height: AppSpacing.lg),
+        const SectionHeader('가까운 추천 장소'),
+        for (final p in places) ...<Widget>[
+          _PlaceTile(place: p),
+          const SizedBox(height: AppSpacing.sm),
+        ],
+      ],
+    );
+  }
+}
+
+class _MapPlaceholder extends StatelessWidget {
+  const _MapPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      height: 160,
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHigh,
+        borderRadius: const BorderRadius.all(AppRadius.lg),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(Icons.map_outlined, size: 36, color: scheme.onSurfaceVariant),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Google Maps Flutter (API key needed)',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '실제 지도 위젯은 Stage 7 릴리즈 전에 활성화',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlaceTile extends StatelessWidget {
+  const _PlaceTile({required this.place});
+  final Place place;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final display = _categoryDisplay(place.category);
+    return AppCard(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${place.name} → ${place.lat}, ${place.lng}')),
+        );
+      },
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.domainAiCoach.withValues(alpha: 0.15),
+              borderRadius: const BorderRadius.all(AppRadius.md),
+            ),
+            child: const Icon(Icons.place_outlined),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    AppBadge(label: display.label, tone: display.tone),
+                    const Spacer(),
+                    Text(
+                      '${place.distanceMeters}m',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(place.name, style: theme.textTheme.titleSmall),
+                const SizedBox(height: 2),
+                Text(place.address, style: theme.textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
