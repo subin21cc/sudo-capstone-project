@@ -41,50 +41,62 @@ class MetricCard extends StatelessWidget {
       MetricDeltaTone.neutral => theme.colorScheme.onSurfaceVariant,
     };
 
-    return AppCard(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              if (icon != null) ...<Widget>[
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.15),
-                    borderRadius: const BorderRadius.all(AppRadius.sm),
+    final semanticLabel = <String?>[
+      title,
+      value,
+      unit,
+      delta,
+    ].whereType<String>().where((String s) => s.isNotEmpty).join(' ');
+
+    return Semantics(
+      container: true,
+      label: semanticLabel,
+      button: onTap != null,
+      child: AppCard(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                if (icon != null) ...<Widget>[
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.15),
+                      borderRadius: const BorderRadius.all(AppRadius.sm),
+                    ),
+                    child: Icon(icon, color: accent, size: 18),
                   ),
-                  child: Icon(icon, color: accent, size: 18),
-                ),
-                const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: AppSpacing.sm),
+                ],
+                Expanded(child: Text(title, style: theme.textTheme.bodyMedium)),
               ],
-              Expanded(child: Text(title, style: theme.textTheme.bodyMedium)),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: <Widget>[
-              Text(value, style: theme.textTheme.displaySmall),
-              if (unit != null) ...<Widget>[
-                const SizedBox(width: 4),
-                Text(unit!, style: theme.textTheme.bodyMedium),
-              ],
-            ],
-          ),
-          if (delta != null) ...<Widget>[
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              delta!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: deltaColor,
-                fontWeight: FontWeight.w600,
-              ),
             ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: <Widget>[
+                Text(value, style: theme.textTheme.displaySmall),
+                if (unit != null) ...<Widget>[
+                  const SizedBox(width: 4),
+                  Text(unit!, style: theme.textTheme.bodyMedium),
+                ],
+              ],
+            ),
+            if (delta != null) ...<Widget>[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                delta!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: deltaColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
