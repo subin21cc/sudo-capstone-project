@@ -1,0 +1,42 @@
+{
+  "@@locale": "en",
+  "appTitle": "Oncare",
+  "@appTitle": {
+    "description": "Application name shown in window/AppBar titles."
+  },
+
+  "navDashboard": "Dashboard",
+  "navDiet": "Diet",
+  "navExercise": "Exercise",
+  "navMyHealth": "My Health",
+
+  "pageDashboardTitle": "Dashboard",
+  "pageDietTitle": "Diet Record",
+  "pageExerciseTitle": "Exercise",
+  "pageMyHealthTitle": "My Health",
+  "pageAiCoachTitle": "AI Coach",
+  "pageNotificationTitle": "Notifications",
+  "pagePlaceTitle": "Place",
+  "pageSignInTitle": "Sign in",
+
+  "actionOpenAiCoach": "Open AI Coach",
+  "actionFindPlace": "Find a place",
+  "actionSignInPlaceholder": "Sign in (placeholder)",
+  "actionRetry": "Retry",
+
+  "placeholderDashboard": "Dashboard (placeholder)",
+  "placeholderDiet": "Diet Record (placeholder)",
+  "placeholderExercise": "Exercise (placeholder)",
+  "placeholderMyHealth": "My Health (placeholder)",
+  "placeholderAiCoach": "AI Coach (placeholder, mock responses)",
+  "placeholderNotification": "Notifications (placeholder)",
+  "placeholderPlace": "Place (placeholder, Google Maps in Stage 4)",
+  "placeholderSignIn": "Sign in (placeholder, social SDKs in Stage 4)",
+
+  "errorNetwork": "Network problem",
+  "errorUnauthorized": "Sign in required",
+  "errorNotFound": "Not found",
+  "errorServer": "Server error",
+  "errorCancelled": "Cancelled",
+  "errorUnknown": "Something went wrong"
+}

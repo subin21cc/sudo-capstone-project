@@ -3,21 +3,28 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
-
 import 'package:oncare/app/app.dart';
 import 'package:oncare/core/config/app_config.dart';
+import 'package:oncare/core/logging/app_logger.dart';
+import 'package:oncare/core/logging/logging_provider_observer.dart';
+import 'package:oncare/core/storage/prefs_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Single entry point used by `main.dart`. Initializes binding,
-/// resolves `AppConfig` from `--dart-define`s, installs a top-level
-/// error handler, and starts the app inside a `ProviderScope`.
+/// resolves [AppConfig] from `--dart-define`s, awaits platform-async
+/// services we want available synchronously to the widget tree
+/// (SharedPreferences), installs a top-level error handler, and starts
+/// the app inside a [ProviderScope].
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final config = AppConfig.fromEnvironment();
-  final logger = Logger();
+  final logger = Logger(level: config.isProd ? Level.info : Level.debug);
   logger.i(
     'oncare boot env=${config.environment.name} api=${config.apiBaseUrl}',
   );
+
+  final prefs = await SharedPreferences.getInstance();
 
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
@@ -28,11 +35,21 @@ Future<void> bootstrap() async {
     );
   };
 
+  // Provider observers — log lifecycle events outside prod.
+  final observers = <ProviderObserver>[
+    if (!config.isProd) LoggingProviderObserver(logger),
+  ];
+
   runZonedGuarded<void>(
     () {
       runApp(
         ProviderScope(
-          overrides: <Override>[appConfigProvider.overrideWithValue(config)],
+          observers: observers,
+          overrides: <Override>[
+            appConfigProvider.overrideWithValue(config),
+            appLoggerProvider.overrideWithValue(logger),
+            sharedPreferencesProvider.overrideWithValue(prefs),
+          ],
           child: const OncareApp(),
         ),
       );
