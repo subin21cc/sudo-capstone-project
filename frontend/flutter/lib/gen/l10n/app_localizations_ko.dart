@@ -12,7 +12,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appTitle => 'Oncare';
 
   @override
-  String get navDashboard => '대시보드';
+  String get navDashboard => '홈';
 
   @override
   String get navDiet => '식단';
@@ -21,19 +21,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get navExercise => '운동';
 
   @override
-  String get navMyHealth => '내 건강';
+  String get navMyHealth => 'My';
 
   @override
-  String get pageDashboardTitle => '대시보드';
+  String get pageDashboardTitle => '홈';
 
   @override
-  String get pageDietTitle => '식단 기록';
+  String get pageDietTitle => '식단';
 
   @override
   String get pageExerciseTitle => '운동';
 
   @override
-  String get pageMyHealthTitle => '내 건강';
+  String get pageMyHealthTitle => 'My';
 
   @override
   String get pageAiCoachTitle => 'AI 코치';

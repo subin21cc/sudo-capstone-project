@@ -20,14 +20,18 @@ class ExerciseWeek {
     required this.dailyMinutes,
     required this.dayLabels,
     required this.totalMinutes,
+    required this.totalCalories,
+    required this.streakDays,
+    required this.aiCoachMessage,
   });
 
   final List<ExerciseSession> sessions;
   final List<double> dailyMinutes;
   final List<String> dayLabels;
   final int totalMinutes;
+  final int totalCalories;
+  final int streakDays;
+  final String aiCoachMessage;
 
-  double get averageMinutes => dailyMinutes.isEmpty
-      ? 0
-      : dailyMinutes.fold<double>(0, (a, b) => a + b) / dailyMinutes.length;
+  int get workoutCount => sessions.length;
 }

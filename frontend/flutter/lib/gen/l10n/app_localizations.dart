@@ -107,7 +107,7 @@ abstract class AppLocalizations {
   /// No description provided for @navDashboard.
   ///
   /// In en, this message translates to:
-  /// **'Dashboard'**
+  /// **'Home'**
   String get navDashboard;
 
   /// No description provided for @navDiet.
@@ -125,19 +125,19 @@ abstract class AppLocalizations {
   /// No description provided for @navMyHealth.
   ///
   /// In en, this message translates to:
-  /// **'My Health'**
+  /// **'My'**
   String get navMyHealth;
 
   /// No description provided for @pageDashboardTitle.
   ///
   /// In en, this message translates to:
-  /// **'Dashboard'**
+  /// **'Home'**
   String get pageDashboardTitle;
 
   /// No description provided for @pageDietTitle.
   ///
   /// In en, this message translates to:
-  /// **'Diet Record'**
+  /// **'Diet'**
   String get pageDietTitle;
 
   /// No description provided for @pageExerciseTitle.
@@ -149,7 +149,7 @@ abstract class AppLocalizations {
   /// No description provided for @pageMyHealthTitle.
   ///
   /// In en, this message translates to:
-  /// **'My Health'**
+  /// **'My'**
   String get pageMyHealthTitle;
 
   /// No description provided for @pageAiCoachTitle.

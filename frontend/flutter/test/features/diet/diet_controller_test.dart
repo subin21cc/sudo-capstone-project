@@ -5,7 +5,7 @@ import 'package:oncare/features/diet/domain/entities/diet_day.dart';
 import 'package:oncare/features/diet/presentation/controllers/diet_controller.dart';
 
 void main() {
-  test('dietTodayProvider returns a day with three meals', () async {
+  test('dietTodayProvider returns a day with three meals + totals', () async {
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final day = await container.read(dietTodayProvider.future);
@@ -19,9 +19,8 @@ void main() {
         MealType.dinner,
       ]),
     );
-    expect(
-      day.macros.carbsPct + day.macros.proteinPct + day.macros.fatPct,
-      100,
-    );
+    expect(day.totalCalories, 1420);
+    expect(day.totalSodiumMg, 2100);
+    expect(day.aiCoachMessage, isNotEmpty);
   });
 }

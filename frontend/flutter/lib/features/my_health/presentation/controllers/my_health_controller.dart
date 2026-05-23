@@ -9,6 +9,6 @@ final myHealthRepositoryProvider = Provider<MyHealthRepository>(
   name: 'myHealthRepository',
 );
 
-final healthHistoryProvider = FutureProvider<HealthHistory>((ref) {
-  return ref.watch(myHealthRepositoryProvider).fetchHistory();
-}, name: 'healthHistory');
+final myHealthStateProvider = FutureProvider<MyHealthState>((ref) {
+  return ref.watch(myHealthRepositoryProvider).fetchState();
+}, name: 'myHealthState');

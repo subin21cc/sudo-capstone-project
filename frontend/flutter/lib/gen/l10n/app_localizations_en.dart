@@ -12,7 +12,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Oncare';
 
   @override
-  String get navDashboard => 'Dashboard';
+  String get navDashboard => 'Home';
 
   @override
   String get navDiet => 'Diet';
@@ -21,19 +21,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navExercise => 'Exercise';
 
   @override
-  String get navMyHealth => 'My Health';
+  String get navMyHealth => 'My';
 
   @override
-  String get pageDashboardTitle => 'Dashboard';
+  String get pageDashboardTitle => 'Home';
 
   @override
-  String get pageDietTitle => 'Diet Record';
+  String get pageDietTitle => 'Diet';
 
   @override
   String get pageExerciseTitle => 'Exercise';
 
   @override
-  String get pageMyHealthTitle => 'My Health';
+  String get pageMyHealthTitle => 'My';
 
   @override
   String get pageAiCoachTitle => 'AI Coach';

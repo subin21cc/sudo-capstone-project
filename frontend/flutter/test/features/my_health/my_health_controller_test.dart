@@ -1,16 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:oncare/features/my_health/domain/entities/health_history.dart';
 import 'package:oncare/features/my_health/presentation/controllers/my_health_controller.dart';
 
 void main() {
-  test('healthHistoryProvider returns 7 readings, downward weight', () async {
+  test('myHealthStateProvider returns full state with 3 indicators', () async {
     final container = ProviderContainer();
     addTearDown(container.dispose);
-    final h = await container.read(healthHistoryProvider.future);
-    expect(h.readings.length, 7);
-    expect(h.latest.weightKg, 68.2);
-    expect(h.weightDelta, lessThan(0));
-    expect(h.goalWeight, 65.0);
+    final state = await container.read(myHealthStateProvider.future);
+    expect(state.profile.name, '김민수');
+    expect(state.profile.email, 'minsu@oncare.com');
+    expect(state.risk.level, RiskLevel.medium);
+    expect(state.indicators.length, 3);
+    expect(state.indicators.map((IndicatorTrend t) => t.kind), <IndicatorKind>[
+      IndicatorKind.weight,
+      IndicatorKind.bloodPressure,
+      IndicatorKind.bloodSugar,
+    ]);
+    expect(state.activityPoints, 1240);
+    expect(state.settings.length, 4);
   });
 }

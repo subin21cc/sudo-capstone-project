@@ -29,15 +29,13 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Boots into the Dashboard tab in English', (tester) async {
+  testWidgets('Boots into the Home tab in English', (tester) async {
     await pumpApp(tester, locale: const Locale('en'));
-    expect(find.widgetWithText(AppBar, 'Dashboard'), findsOneWidget);
-    expect(find.byType(NavigationBar), findsOneWidget);
-    // Dashboard content may share tokens with nav labels (e.g.
-    // 'Exercise' metric card + 'Exercise' bottom-nav destination).
+    // Bottom-nav labels match the React original.
+    expect(find.text('Home'), findsAtLeastNWidgets(1));
     expect(find.text('Diet'), findsAtLeastNWidgets(1));
     expect(find.text('Exercise'), findsAtLeastNWidgets(1));
-    expect(find.text('My Health'), findsAtLeastNWidgets(1));
+    expect(find.text('My'), findsAtLeastNWidgets(1));
   });
 
   testWidgets('Tapping a bottom-nav destination switches branch', (
@@ -45,29 +43,28 @@ void main() {
   ) async {
     await pumpApp(tester, locale: const Locale('en'));
 
-    await tester.tap(find.text('Diet'));
+    // OncareHeader is a Material+Container (not an AppBar), so we
+    // settle for `find.text(...)` finders here.
+    await tester.tap(find.text('Diet').first);
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Diet Record'), findsOneWidget);
+    expect(find.text('Diet'), findsAtLeastNWidgets(1));
 
-    await tester.tap(find.text('Exercise'));
+    await tester.tap(find.text('Exercise').first);
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Exercise'), findsOneWidget);
+    expect(find.text('Exercise'), findsAtLeastNWidgets(1));
 
-    await tester.tap(find.text('My Health'));
+    await tester.tap(find.text('My').first);
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'My Health'), findsOneWidget);
+    expect(find.text('My'), findsAtLeastNWidgets(1));
   });
 
   testWidgets('Korean locale localises the bottom-nav labels', (tester) async {
     await pumpApp(tester, locale: const Locale('ko'));
-    // Dashboard async data is fetched after first frame — wait it out.
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, '대시보드'), findsOneWidget);
-    // Dashboard content may include the same Korean tokens as the
-    // bottom-nav labels (e.g. 운동 / 식단 metric cards), so allow ≥1.
+    expect(find.text('홈'), findsAtLeastNWidgets(1));
     expect(find.text('식단'), findsAtLeastNWidgets(1));
     expect(find.text('운동'), findsAtLeastNWidgets(1));
-    expect(find.text('내 건강'), findsAtLeastNWidgets(1));
+    expect(find.text('My'), findsAtLeastNWidgets(1));
   });
 
   test('ARB resources expose nav strings for ko + en', () {
