@@ -1,0 +1,98 @@
+name: oncare
+description: "Oncare prototype reconstructed in Flutter (Android / iOS / Web)."
+publish_to: 'none'
+
+# Versioning is managed via --build-name / --build-number at build time.
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # --- State management & DI ---
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  hooks_riverpod: ^2.6.1
+  flutter_hooks: ^0.21.2
+
+  # --- Routing ---
+  go_router: ^14.6.2
+
+  # --- Networking ---
+  dio: ^5.7.0
+  retrofit: ^4.4.1
+  pretty_dio_logger: ^1.4.0
+
+  # --- Local persistence ---
+  drift: ^2.20.3
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.2
+
+  # --- Data modeling ---
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+
+  # --- UI / charts / animation ---
+  fl_chart: ^0.69.2
+  flutter_animate: ^4.5.0
+
+  # --- i18n / utilities ---
+  intl: any
+  logger: ^2.4.0
+  equatable: ^2.0.7
+
+  # --- Maps (Q8) ---
+  google_maps_flutter: ^2.9.0
+  google_maps_flutter_web: ^0.5.10
+  url_launcher: ^6.3.1
+
+  # NOTE: Social-login SDKs (sign_in_with_apple / google_sign_in /
+  # kakao_flutter_sdk_user / flutter_naver_login) are added in Stage 4
+  # when the auth feature is implemented — they require native setup
+  # (Info.plist / AndroidManifest / SDK keys) and are not just pub adds.
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # --- Codegen ---
+  build_runner: ^2.4.13
+  riverpod_generator: ^2.6.5
+  freezed: ^3.0.0
+  json_serializable: ^6.8.0
+  retrofit_generator: ^9.1.5
+  drift_dev: ^2.20.3
+
+  # --- Lint plugins ---
+  custom_lint: ^0.7.6
+  riverpod_lint: ^2.6.3
+
+  # --- Test helpers ---
+  mocktail: ^1.0.4
+  golden_toolkit: ^0.15.0
+
+flutter:
+  uses-material-design: true
+  generate: true   # enables flutter gen-l10n via l10n.yaml (added in Phase 2.7)
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+  # Custom fonts are added in Stage 3 (design system).
