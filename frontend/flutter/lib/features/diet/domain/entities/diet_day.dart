@@ -12,12 +12,16 @@ class DietEntry {
     required this.timeLabel,
     required this.foods,
     required this.totalCalories,
+    this.sodiumMg = 0,
+    this.sugarG = 0,
   });
 
   final MealType mealType;
   final String timeLabel;
   final List<FoodItem> foods;
   final int totalCalories;
+  final int sodiumMg;
+  final int sugarG;
 }
 
 class DietMacros {
@@ -37,9 +41,17 @@ class DietDay {
     required this.entries,
     required this.totalCalories,
     required this.macros,
+    required this.totalSodiumMg,
+    required this.totalSugarG,
+    required this.aiCoachMessage,
   });
 
   final List<DietEntry> entries;
   final int totalCalories;
   final DietMacros macros;
+  final int totalSodiumMg;
+  final int totalSugarG;
+
+  /// One-line feedback shown in the AI coach card on the Diet tab.
+  final String aiCoachMessage;
 }

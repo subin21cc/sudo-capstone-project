@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:oncare/core/errors/app_error.dart';
-import 'package:oncare/design_system/charts/app_donut_chart.dart';
-import 'package:oncare/design_system/molecules/chart_card.dart';
-import 'package:oncare/design_system/molecules/metric_card.dart';
-import 'package:oncare/design_system/molecules/section_header.dart';
 import 'package:oncare/design_system/tokens/colors.dart';
 import 'package:oncare/design_system/tokens/spacing.dart';
-import 'package:oncare/features/diet/domain/entities/diet_day.dart';
 import 'package:oncare/features/diet/presentation/controllers/diet_controller.dart';
+import 'package:oncare/features/diet/presentation/widgets/diet_summary_card.dart';
 import 'package:oncare/features/diet/presentation/widgets/meal_card.dart';
 import 'package:oncare/gen/l10n/app_localizations.dart';
+import 'package:oncare/shared/widgets/ai_coach_card.dart';
 import 'package:oncare/shared/widgets/error_view.dart';
+import 'package:oncare/shared/widgets/oncare_header.dart';
 
 class DietRecordPage extends ConsumerWidget {
   const DietRecordPage({super.key});
@@ -21,66 +19,67 @@ class DietRecordPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final async = ref.watch(dietTodayProvider);
+
     return Scaffold(
-      appBar: AppBar(title: Text(l.pageDietTitle)),
-      body: async.when(
-        data: (day) => _Body(day: day),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (Object e, _) => ErrorView(
-          error: e is AppError ? e : UnknownError(message: e.toString()),
-          onRetry: () => ref.invalidate(dietTodayProvider),
-        ),
-      ),
-    );
-  }
-}
-
-class _Body extends StatelessWidget {
-  const _Body({required this.day});
-  final DietDay day;
-
-  @override
-  Widget build(BuildContext context) {
-    final macros = <AppDonutSegment>[
-      AppDonutSegment(
-        label: '탄수화물',
-        value: day.macros.carbsPct.toDouble(),
-        color: AppColors.primary,
-      ),
-      AppDonutSegment(
-        label: '단백질',
-        value: day.macros.proteinPct.toDouble(),
-        color: AppColors.primary,
-      ),
-      AppDonutSegment(
-        label: '지방',
-        value: day.macros.fatPct.toDouble(),
-        color: AppColors.primary,
-      ),
-    ];
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      children: <Widget>[
-        MetricCard(
-          title: '오늘 총 칼로리',
-          value: day.totalCalories.toString(),
-          unit: 'kcal',
-          icon: Icons.restaurant,
-          accentColor: AppColors.primary,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        ChartCard(
-          title: '영양소 분포',
-          height: 180,
-          child: AppDonutChart(segments: macros),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        const SectionHeader('오늘의 식단'),
-        for (final entry in day.entries) ...<Widget>[
-          MealCard(entry: entry),
-          const SizedBox(height: AppSpacing.sm),
+      backgroundColor: AppColors.background,
+      body: Column(
+        children: <Widget>[
+          OncareHeader(title: l.pageDietTitle),
+          Expanded(
+            child: async.when(
+              data: (day) => Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 672),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      AppSpacing.xl,
+                      AppSpacing.lg,
+                      AppSpacing.xxxl,
+                    ),
+                    children: <Widget>[
+                      DietSummaryCard(day: day),
+                      const SizedBox(height: AppSpacing.lg),
+                      AiCoachCard(message: day.aiCoachMessage),
+                      const SizedBox(height: AppSpacing.lg),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: Text(
+                          '오늘의 식단',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      for (final entry in day.entries) ...<Widget>[
+                        MealCard(entry: entry),
+                        const SizedBox(height: AppSpacing.sm),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (Object e, _) => ErrorView(
+                error: e is AppError ? e : UnknownError(message: e.toString()),
+                onRetry: () => ref.invalidate(dietTodayProvider),
+              ),
+            ),
+          ),
         ],
-      ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.primaryForeground,
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('식단 추가 — 카메라/수동 입력은 Stage 8.7'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
