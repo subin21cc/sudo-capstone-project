@@ -1,0 +1,19 @@
+/// Centralised route paths. Anything that needs to navigate imports
+/// this rather than another feature module — see STRUCTURE.md §4.
+class AppRoutes {
+  AppRoutes._();
+
+  // Main tabs (StatefulShellRoute branches)
+  static const String dashboard = '/dashboard';
+  static const String diet = '/diet';
+  static const String exercise = '/exercise';
+  static const String myHealth = '/my-health';
+
+  // Modal-ish routes (pushed from any tab)
+  static const String aiCoach = '/ai-coach';
+  static const String notification = '/notification';
+  static const String place = '/place';
+
+  // Auth
+  static const String signIn = '/auth/sign-in';
+}
