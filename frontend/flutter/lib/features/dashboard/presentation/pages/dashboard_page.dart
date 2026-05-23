@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:oncare/app/router/routes.dart';
+import 'package:oncare/gen/l10n/app_localizations.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: Text(l.pageDashboardTitle),
         actions: <Widget>[
           IconButton(
-            tooltip: 'Notifications',
+            tooltip: l.pageNotificationTitle,
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () => context.push(AppRoutes.notification),
           ),
@@ -24,26 +26,23 @@ class DashboardPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            const Text(
-              'Dashboard (placeholder)',
-              style: TextStyle(fontSize: 16),
-            ),
+            Text(l.placeholderDashboard, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 24),
             FilledButton.icon(
               icon: const Icon(Icons.smart_toy_outlined),
-              label: const Text('Open AI Coach'),
+              label: Text(l.actionOpenAiCoach),
               onPressed: () => context.push(AppRoutes.aiCoach),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               icon: const Icon(Icons.place_outlined),
-              label: const Text('Find a place'),
+              label: Text(l.actionFindPlace),
               onPressed: () => context.push(AppRoutes.place),
             ),
             const SizedBox(height: 8),
             TextButton.icon(
               icon: const Icon(Icons.login),
-              label: const Text('Sign in (placeholder)'),
+              label: Text(l.actionSignInPlaceholder),
               onPressed: () => context.push(AppRoutes.signIn),
             ),
           ],

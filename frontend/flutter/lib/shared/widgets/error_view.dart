@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:oncare/core/errors/app_error.dart';
+import 'package:oncare/gen/l10n/app_localizations.dart';
 
 /// Generic error placeholder for any page that needs to show an
 /// [AppError]. Pages should prefer this over re-implementing their
@@ -14,13 +15,14 @@ class ErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context);
     final title = switch (error) {
-      NetworkError() => 'Network problem',
-      UnauthorizedError() => 'Sign in required',
-      NotFoundError() => 'Not found',
-      ServerError() => 'Server error',
-      CancelledError() => 'Cancelled',
-      UnknownError() => 'Something went wrong',
+      NetworkError() => l.errorNetwork,
+      UnauthorizedError() => l.errorUnauthorized,
+      NotFoundError() => l.errorNotFound,
+      ServerError() => l.errorServer,
+      CancelledError() => l.errorCancelled,
+      UnknownError() => l.errorUnknown,
     };
     return Center(
       child: Padding(
@@ -39,7 +41,7 @@ class ErrorView extends StatelessWidget {
               const SizedBox(height: 16),
               FilledButton.icon(
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(l.actionRetry),
                 onPressed: onRetry,
               ),
             ],

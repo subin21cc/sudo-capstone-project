@@ -1,0 +1,39 @@
+{
+  "@@locale": "ko",
+  "appTitle": "Oncare",
+
+  "navDashboard": "대시보드",
+  "navDiet": "식단",
+  "navExercise": "운동",
+  "navMyHealth": "내 건강",
+
+  "pageDashboardTitle": "대시보드",
+  "pageDietTitle": "식단 기록",
+  "pageExerciseTitle": "운동",
+  "pageMyHealthTitle": "내 건강",
+  "pageAiCoachTitle": "AI 코치",
+  "pageNotificationTitle": "알림",
+  "pagePlaceTitle": "장소",
+  "pageSignInTitle": "로그인",
+
+  "actionOpenAiCoach": "AI 코치 열기",
+  "actionFindPlace": "장소 찾기",
+  "actionSignInPlaceholder": "로그인 (placeholder)",
+  "actionRetry": "다시 시도",
+
+  "placeholderDashboard": "대시보드 (placeholder)",
+  "placeholderDiet": "식단 기록 (placeholder)",
+  "placeholderExercise": "운동 (placeholder)",
+  "placeholderMyHealth": "내 건강 (placeholder)",
+  "placeholderAiCoach": "AI 코치 (placeholder, mock 응답)",
+  "placeholderNotification": "알림 (placeholder)",
+  "placeholderPlace": "장소 (placeholder, Stage 4에서 Google Maps)",
+  "placeholderSignIn": "로그인 (placeholder, Stage 4에서 소셜 SDK)",
+
+  "errorNetwork": "네트워크 문제",
+  "errorUnauthorized": "로그인이 필요합니다",
+  "errorNotFound": "찾을 수 없습니다",
+  "errorServer": "서버 오류",
+  "errorCancelled": "취소됨",
+  "errorUnknown": "알 수 없는 오류"
+}
