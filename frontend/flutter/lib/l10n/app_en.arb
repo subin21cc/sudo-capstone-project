@@ -5,15 +5,15 @@
     "description": "Application name shown in window/AppBar titles."
   },
 
-  "navDashboard": "Dashboard",
+  "navDashboard": "Home",
   "navDiet": "Diet",
   "navExercise": "Exercise",
-  "navMyHealth": "My Health",
+  "navMyHealth": "My",
 
-  "pageDashboardTitle": "Dashboard",
-  "pageDietTitle": "Diet Record",
+  "pageDashboardTitle": "Home",
+  "pageDietTitle": "Diet",
   "pageExerciseTitle": "Exercise",
-  "pageMyHealthTitle": "My Health",
+  "pageMyHealthTitle": "My",
   "pageAiCoachTitle": "AI Coach",
   "pageNotificationTitle": "Notifications",
   "pagePlaceTitle": "Place",
