@@ -6,6 +6,65 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.3.0+3] — 2026-05-20
+
+Stage 9 — Local backend via drift + LocalApiInterceptor. The
+production `USE_MOCK_API=true` build no longer relies on per-feature
+in-memory fakes; every feature talks to dio, and dio talks to a
+drift-backed dispatcher. Switching to FastAPI is a single
+`--dart-define=USE_MOCK_API=false`.
+
+### Added
+- **drift schema v2**: 6 tables — `AppKeyValues`, `DietEntries`,
+  `ExerciseSessions`, `Vitals`, `ScheduleEvents`, `NotificationItems`,
+  with `onUpgrade` migration from v1.
+- **Seed bootstrap**: `core/storage/seed_data.dart` writes the React
+  prototype's mock data into the new tables on first run, gated by a
+  `seeded_v1` key. Adds a 95 mg/dL blood-sugar reading so MyHealth
+  matches the React mock out of the box.
+- **LocalApiInterceptor**: `core/network/interceptors/local_api_interceptor.dart`
+  — `_routes` map dispatches `METHOD path` strings to drift-backed
+  handlers. Falls through (`null`) on unknown paths so production
+  FastAPI calls still reach the wire.
+- **Endpoints**:
+  - `GET /diet/days/today` — aggregates today's `DietEntries`.
+  - `POST /vitals/{kind}` + `GET /vitals/{kind}/latest` — three fixed
+    kinds (weight | blood-pressure | blood-sugar).
+  - `GET /exercise/weeks/current` — daily-minutes aggregation Mon..Sun
+    with streak.
+  - `GET /schedule/events?date=` — calendar event listing.
+  - `GET /notifications` — newest-first with Korean `time_ago`.
+  - `GET /dashboard/summary` — full cross-table aggregation (diet +
+    exercise + vital + schedule + heuristic week-score).
+  - `GET /ai-coach/feedback`, `GET /users/me`, `GET /users/me/health`,
+    `GET /places/nearby` — static demo payloads.
+  - `GET /healthz` reports `{"status":"ok","backend":"drift-local"}`.
+- **New repositories**: `DioDietRepository`, `DioVitalsRepository`,
+  `DioExerciseRepository`, `DioScheduleRepository`,
+  `DioNotificationRepository`, `DioDashboardRepository`,
+  `DioAiCoachRepository`, `DioMyHealthRepository`, `DioPlaceRepository`.
+  Each feature controller now defaults to the Dio implementation.
+- **New schedule feature**: `lib/features/schedule/` — entity, repo
+  interface, mock + Dio repos, controller (FutureProvider.family).
+- **Tests**: 7 new LocalApiInterceptor integration files
+  (`local_api_interceptor_{diet,vitals,exercise,schedule,notifications,dashboard,aux}_test.dart`)
+  + `local_api_smoke_test.dart` covering the dio → interceptor →
+  fromJson stack. Existing controller tests now override repos with
+  in-memory mocks. **85 tests pass**, analyze clean.
+
+### Changed
+- **QuickInputDialog**: now persists weight / BP / blood-sugar through
+  `VitalsRepository` and invalidates `latestVitalProvider` on success.
+- **DashboardSummary / DietDay / ExerciseWeek / Place / MyHealthState /
+  AiCoachState / ScheduleEvent**: all gained `fromJson` factories on
+  the snake_case wire shape.
+
+### Documentation
+- `docs/PLAN.md` §9.5–9.7 — Stage 9 decision log (D1..D6), endpoint
+  matrix, FastAPI swap procedure.
+- `docs/API_CATALOG.md` and `docs/DUMMY_BACKEND.md` (Phase 8) still
+  describe the long-form spec.
+
 ## [0.2.0+2] — 2026-05-20
 
 UX Alignment with the React original (Stage 8). The app now matches
