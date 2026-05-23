@@ -11,6 +11,9 @@ class MockExerciseRepository implements ExerciseRepository {
       dailyMinutes: <double>[30, 0, 45, 20, 60, 35, 50],
       dayLabels: <String>['월', '화', '수', '목', '금', '토', '일'],
       totalMinutes: 240,
+      totalCalories: 1690,
+      streakDays: 5,
+      aiCoachMessage: '주간 운동 목표 80%를 달성했어요! 일요일에 가볍게 걷기를 더해 100%를 채워봐요.',
       sessions: <ExerciseSession>[
         ExerciseSession(
           dayLabel: '월',

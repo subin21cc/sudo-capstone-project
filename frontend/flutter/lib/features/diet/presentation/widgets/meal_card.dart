@@ -88,10 +88,7 @@ class MealCard extends StatelessWidget {
                       : _PillTone.muted,
                 ),
                 const SizedBox(width: 6),
-                _Pill(
-                  label: '당류 ${entry.sugarG}g',
-                  tone: _PillTone.muted,
-                ),
+                _Pill(label: '당류 ${entry.sugarG}g', tone: _PillTone.muted),
               ],
             ),
           ],
