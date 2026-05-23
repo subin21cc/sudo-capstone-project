@@ -45,13 +45,16 @@ flutter build ios --release      # Xcode에서 archive
 - **`ci.yml`** — `push`(main) / `pull_request`에서 `dart format` + `flutter analyze` + `flutter test` 실행
 - **`deploy-web.yml`** — `push`(main) 시 `flutter build web` 후 GitHub Pages에 자동 배포 → `https://barmi.github.io/oncare-flutter/`
 
-### 최초 1회 수동 설정 (push 전에)
+### 최초 1회 설정
 
-GitHub Pages가 활성화되어 있어야 deploy 워크플로우가 작동합니다.
+워크플로우의 `actions/configure-pages@v5`에 `enablement: true`를 줘서 첫 실행 시 Pages site를 자동 provision 합니다.
+권한 정책으로 자동 활성화가 막힐 경우(organization 레포 등) **수동으로 한 번만** 활성화하세요:
 
 1. 레포 → **Settings → Pages**
 2. **Source**: `GitHub Actions` 로 변경
-3. (선택) **Settings → Secrets and variables → Actions → Variables** 에 `API_BASE_URL` 등록 — 미설정 시 dev 기본값 사용
+3. Actions 탭에서 실패한 `Deploy Web (GitHub Pages)` 워크플로우를 **Re-run**
+
+(선택) **Settings → Secrets and variables → Actions → Variables** 에 `API_BASE_URL` 등록 — 미설정 시 dev 기본값 사용
 
 ## Stage 진행 현황
 
