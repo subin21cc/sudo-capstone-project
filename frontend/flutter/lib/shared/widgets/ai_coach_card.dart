@@ -36,7 +36,7 @@ class AiCoachCard extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: const Icon(
-              Icons.psychology_outlined,
+              Icons.smart_toy_outlined,
               color: AppColors.primary,
               size: 20,
             ),
