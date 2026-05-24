@@ -142,24 +142,8 @@ class LocalApiInterceptor extends Interceptor {
       exerciseMinutes += r.minutes;
     }
 
-    // Latest blood sugar reading (mg/dL) — defaults to 0 when none.
-    int bloodSugar = 0;
-    final bsRow =
-        await (_db.select(_db.vitals)
-              ..where((t) => t.kind.equals('blood-sugar'))
-              ..orderBy(<OrderClauseGenerator<$VitalsTable>>[
-                (t) => OrderingTerm(
-                  expression: t.recordedAt,
-                  mode: OrderingMode.desc,
-                ),
-              ])
-              ..limit(1))
-            .getSingleOrNull();
-    if (bsRow != null) {
-      final v = jsonDecode(bsRow.valueJson) as Map<Object?, Object?>;
-      final raw = v['mg_per_dl'];
-      if (raw is num) bloodSugar = raw.toInt();
-    }
+    // (혈당 row removed from the home summary per the latest design ref —
+    // the indicator list now ends at 당류.)
 
     // Today's schedule items.
     final schedRows = await (_db.select(
@@ -196,12 +180,6 @@ class LocalApiInterceptor extends Interceptor {
           'current': totalSugar,
           'max': 50,
           'unit': 'g',
-        },
-        <String, Object?>{
-          'label': '혈당',
-          'current': bloodSugar,
-          'max': 120,
-          'unit': 'mg/dL',
         },
       ],
       'diet_entries': dietRows.length,

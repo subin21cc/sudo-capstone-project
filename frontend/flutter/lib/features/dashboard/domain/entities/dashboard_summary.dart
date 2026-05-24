@@ -63,7 +63,7 @@ class DashboardSummary {
     required this.sodiumWarning,
   });
 
-  /// 4-row health summary (칼로리 / 나트륨 / 당류 / 혈당).
+  /// 3-row health summary (칼로리 / 나트륨 / 당류).
   final List<HealthIndicator> indicators;
 
   /// `quickStats` left tile — number of diet records logged today.

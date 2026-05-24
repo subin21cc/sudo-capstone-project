@@ -18,7 +18,6 @@ class MockDashboardRepository implements DashboardRepository {
           overBudget: true,
         ),
         HealthIndicator(label: '당류', current: 45, max: 50, unit: 'g'),
-        HealthIndicator(label: '혈당', current: 95, max: 120, unit: 'mg/dL'),
       ],
       dietEntries: 2,
       exerciseMinutes: 45,
