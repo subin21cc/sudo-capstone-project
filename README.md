@@ -193,11 +193,11 @@ sudo-capstone-project/
 ## Team
 
 
-|                          최지수                          |                            박서연                             |                           신수빈                            |
-|:-----------------------------------------------------:|:----------------------------------------------------------:|:--------------------------------------------------------:|
-| <img src="https://github.com/aJISUa.png" width="100"> | <img src="https://github.com/seoyeon0516.png" width="100"> | <img src="https://github.com/subin21cc.png" width="100"> |
-|         [@aJISUa](https://github.com/aJISUa)          |       [@seoyeon0516](https://github.com/seoyeon0516)       |        [@subin21cc](https://github.com/subin21cc)        |
-| Data Analyst & Back-end | DevOps & Back-end |                      AI & Front-end                      |
+|                                                         최지수                                                          |                                                            박서연                                                            |                                                           신수빈                                                           |
+|:--------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------:|
+| <img src="https://github.com/aJISUa.png" width="100"><br/><img src="docs/assets/spacer.png" width="200" height="1"/> | <img src="https://github.com/seoyeon0516.png" width="100"><br/><img src="docs/assets/spacer.png" width="200" height="1"/> | <img src="https://github.com/subin21cc.png" width="100"><br/><img src="docs/assets/spacer.png" width="200" height="1"/> |
+|                                         [@aJISUa](https://github.com/aJISUa)                                         |                                      [@seoyeon0516](https://github.com/seoyeon0516)                                       |                                       [@subin21cc](https://github.com/subin21cc)                                        |
+|                                               Data Analyst & Back-end                                                |                                                     DevOps & Back-end                                                     |                                                     AI & Front-end                                                      |
 
 
 <br/>
