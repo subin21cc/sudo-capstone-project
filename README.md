@@ -4,22 +4,13 @@
 
 <br/><br/>
 
-<table border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td align="center" valign="middle"><img src="docs/assets/oncare-logo-name.png" alt="On-Care Logo" width="110"/></td>
-    <td align="left" valign="middle"><h1>&nbsp;&nbsp;On-Care</h1></td>
-  </tr>
-</table>
 
-### HealthMate AI: 불규칙한 생활 속 2030을 위한 고혈압·당뇨 위험군 대상 식단 인식·코칭 통합 헬스케어 플랫폼
+# On-care <img src="docs/assets/oncare-logo-name.png" alt="On-Care Logo" width="150" align="left"/>
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=flat-square&logo=flutter&logoColor=white)](https://flutter.dev)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![YOLOv8](https://img.shields.io/badge/YOLOv8-Vision_Filter-FF6B35?style=flat-square&logo=pytorch&logoColor=white)](https://github.com/ultralytics/ultralytics)
-[![Gemini](https://img.shields.io/badge/Gemini_API-Nutrition_AI-4285F4?style=flat-square&logo=google&logoColor=white)](https://ai.google.dev)
-[![GPT-4o](https://img.shields.io/badge/GPT--4o-RAG-412991?style=flat-square&logo=openai&logoColor=white)](https://openai.com)
-[![License](https://img.shields.io/badge/License-Proprietary-lightgrey?style=flat-square)](#license)
+**HealthMate AI: 불규칙한 생활 속 2030을 위한 고혈압·당뇨 위험군 대상 식단 인식·코칭 통합 헬스케어 플랫폼**
 
+
+<br/><br/>
 
 </div>
 
