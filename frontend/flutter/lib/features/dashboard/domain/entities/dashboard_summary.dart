@@ -61,6 +61,7 @@ class DashboardSummary {
     required this.weekScore,
     required this.weekScoreDelta,
     required this.sodiumWarning,
+    this.exerciseFeedback,
   });
 
   /// 3-row health summary (칼로리 / 나트륨 / 당류).
@@ -79,9 +80,13 @@ class DashboardSummary {
   final int weekScore;
   final int weekScoreDelta;
 
-  /// One-line warning shown above the indicator list when something
-  /// is over budget (e.g. sodium intake).
+  /// Diet-side daily feedback line — currently driven by the sodium
+  /// budget, but treated generically as "the diet feedback the AI
+  /// coach wants surfaced today". Null = nothing to say.
   final String? sodiumWarning;
+
+  /// Exercise-side daily feedback line. Optional for back-compat.
+  final String? exerciseFeedback;
 
   factory DashboardSummary.fromJson(Map<String, Object?> json) =>
       DashboardSummary(
@@ -98,5 +103,6 @@ class DashboardSummary {
         weekScore: (json['week_score']! as num).toInt(),
         weekScoreDelta: (json['week_score_delta']! as num).toInt(),
         sodiumWarning: json['sodium_warning'] as String?,
+        exerciseFeedback: json['exercise_feedback'] as String?,
       );
 }
