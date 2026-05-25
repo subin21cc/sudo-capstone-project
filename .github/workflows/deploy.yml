@@ -39,7 +39,7 @@ jobs:
 
       - name: Build Flutter web
         working-directory: frontend/flutter
-        run: flutter build web --release --base-href "/sudo-capstone-project/frontend/"
+        run: flutter build web --release --base-href "/frontend/"
 
       - name: Prepare GitHub Pages files
         run: |
