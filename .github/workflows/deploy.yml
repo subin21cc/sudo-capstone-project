@@ -34,18 +34,18 @@ jobs:
         run: flutter --version
 
       - name: Install Flutter dependencies
-        working-directory: frontend
+        working-directory: frontend/flutter
         run: flutter pub get
 
       - name: Build Flutter web
-        working-directory: frontend
+        working-directory: frontend/flutter
         run: flutter build web --release --base-href "/sudo-capstone-project/frontend/"
 
       - name: Prepare GitHub Pages files
         run: |
           mkdir -p public/frontend
           cp index.html public/index.html
-          cp -R frontend/build/web/* public/frontend/
+          cp -R frontend/flutter/build/web/* public/frontend/
           touch public/.nojekyll
 
       - name: Configure GitHub Pages
