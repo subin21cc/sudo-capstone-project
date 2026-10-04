@@ -173,6 +173,10 @@ class Settings(BaseSettings):
     attachment_s3_endpoint_url: str = ""
 
     # --- AI 엔진 ---
+    #: 개인 서버 배포(private-deploy) 전용. true 면 운영(env=prod)에서도 AI 키 없이 기동한다.
+    #: 사진 분석은 503 으로 닫히고(스텁으로 내려가지 않음), 임베딩은 적재·검색을 건너뛰며,
+    #: 코치·조언은 기존 규칙형 폴백을 쓴다. 해시 벡터·가짜 식단은 여전히 운영에 들어가지 않는다.
+    allow_prod_without_ai: bool = False
     recognizer: str = "gemini"        # gemini | claude(litellm) | yolo
     # 인식 후 공공 식품영양성분 DB 로 영양 수치 보강(정확도↑). 순수 LLM 비교실험 시 false.
     nutrition_db_enrich: bool = True
@@ -562,7 +566,7 @@ class Settings(BaseSettings):
             # 내려간다. 운영에서 그대로 뜨면 사진과 무관한 음식이 끼니로 저장되고
             # 포인트까지 나가며, 의미 없는 벡터가 RAG 테이블에 섞인다(#2812).
             # 조용히 뜨는 대신 기동을 거부해 배포 단계에서 바로 드러나게 한다.
-            problems = self.missing_ai_config()
+            problems = [] if self.allow_prod_without_ai else self.missing_ai_config()
             if problems:
                 raise ValueError(
                     "운영(env=prod)에서는 사진 인식·임베딩 키가 필요합니다: " + "; ".join(problems)
