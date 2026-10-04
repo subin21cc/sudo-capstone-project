@@ -26,7 +26,10 @@ COMPOSE=(docker compose -p oncare
 
 echo "[deploy] waiting for /v1/healthz ($GIT_SHA)"
 for _ in $(seq 1 60); do
-  if curl -fsS http://127.0.0.1:8000/v1/healthz; then
+  # FORCE_HTTPS 라 평문 요청은 307 이 된다 — nginx 처럼 https 로 왔다고 알린다.
+  if body="$(curl -fsS -H "X-Forwarded-Proto: https" http://127.0.0.1:8000/v1/healthz)" \
+      && grep -q "\"commit_sha\":\"$GIT_SHA\"" <<<"$body"; then
+    echo "$body"
     echo
     echo "[deploy] ok"
     exit 0
