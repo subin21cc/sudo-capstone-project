@@ -1,0 +1,35 @@
+# 개인 서버 배포용 compose override (private-deploy 브랜치 전용).
+# upstream 의 backend/docker-compose.yml 위에 덮어쓴다 — upstream 파일은 고치지 않는다.
+#
+#   docker compose -p oncare \
+#     -f backend/docker-compose.yml -f deploy/docker-compose.private.yml \
+#     --env-file backend/.env up -d --build
+#
+# - DB·앱 포트를 외부에 열지 않는다(앱은 127.0.0.1:8000 만, nginx 가 프록시).
+# - DB 비밀번호를 backend/.env 의 POSTGRES_PASSWORD 로 바꾼다(최초 볼륨 생성 때 적용).
+# - 채팅 사진·리포트 PDF 를 호스트 디렉터리에 둬 재배포에도 남긴다.
+# - 서버 메모리가 빠듯해(GitLab·Jenkins 동거) 컨테이너별 상한을 건다.
+services:
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?backend/.env 에 POSTGRES_PASSWORD 를 설정하세요}
+    ports: !reset []
+    restart: unless-stopped
+    mem_limit: 768m
+
+  app:
+    build:
+      args:
+        # /v1/version·healthz 의 commit_sha. server-deploy.sh 가 넣는다.
+        GIT_SHA: ${GIT_SHA:-unknown}
+    environment:
+      DATABASE_URL: postgresql+psycopg://oncare:${POSTGRES_PASSWORD:?backend/.env 에 POSTGRES_PASSWORD 를 설정하세요}@db:5432/oncare
+      CHAT_IMAGE_STORAGE_DIR: /data/chat-images
+      REPORT_PDF_STORAGE_DIR: /data/report-pdfs
+    volumes:
+      # 컨테이너 사용자(uid 10001)가 쓸 수 있게 호스트에서 소유자를 맞춰 둔다.
+      - ${ONCARE_DATA_DIR:-/srv/oncare/data}:/data
+    ports: !reset
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    mem_limit: 1g
