@@ -1,4 +1,4 @@
-"""개인 서버 배포(private-deploy): AI 키 없는 운영 기동 — DB 불필요."""
+"""개인 서버 배포(private-deploy): AI 키 없는 운영 기동·로컬 첨부 저장 — DB 불필요."""
 from __future__ import annotations
 
 import pytest
@@ -45,3 +45,22 @@ def test_prod_without_ai_never_falls_back_to_fakes(monkeypatch):
         recognizer_factory.get_recognizer("stub")
     with pytest.raises(embedder_factory.EmbedderUnavailable):
         embedder_factory.get_embedder()
+
+
+def test_prod_local_attachments_blocked_by_default():
+    from app.core import startup_checks
+
+    s = _prod_no_ai(allow_prod_without_ai=True, attachment_storage="local")
+    with pytest.raises(startup_checks.StartupConfigError):
+        startup_checks.check(s)
+
+
+def test_prod_local_attachments_allowed_when_opted_in():
+    from app.core import startup_checks
+
+    s = _prod_no_ai(
+        allow_prod_without_ai=True,
+        attachment_storage="local",
+        allow_prod_local_attachments=True,
+    )
+    startup_checks.check(s)  # 막지 않는다

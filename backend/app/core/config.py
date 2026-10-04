@@ -146,6 +146,9 @@ class Settings(BaseSettings):
     #: 다르기 때문이다 — 리포트 PDF 는 그 주의 산출물이고, 코칭 사진은 대화의
     #: 일부로 남는다.
     chat_image_storage_dir: str = "data/chat-images"
+    #: 개인 서버 배포(private-deploy) 전용. true 면 운영(env=prod)에서도 첨부를 로컬
+    #: 디스크에 둔다. 위 두 디렉터리를 호스트 볼륨에 마운트해 재배포에도 남게 할 때만 켠다.
+    allow_prod_local_attachments: bool = False
     #: 사진 한 장의 상한. 휴대폰 카메라 원본을 그대로 올려도 걸리지 않을
     #: 정도이되, 대화 스레드가 파일 서버가 되지는 않을 정도.
     max_chat_image_bytes: int = 6 * 1024 * 1024

@@ -51,7 +51,7 @@ def check(settings: Settings) -> list[str]:
         backend = attachment_store.resolve_backend(settings)
     except RuntimeError as exc:
         raise StartupConfigError(str(exc)) from exc
-    if backend == "local" and settings.is_prod:
+    if backend == "local" and settings.is_prod and not settings.allow_prod_local_attachments:
         # 운영은 경고가 아니라 기동 거부다(#3029). 경고만 남기면 키를 빠뜨린 배포가
         # 배포 검증까지 통과하고, 다음 재배포 때 사진·리포트 PDF 가 사라진다.
         raise StartupConfigError(
