@@ -7,6 +7,12 @@ abstract final class SignupEmailCode {
   /// 코드 길이. 숫자만 쓴다.
   static const int length = 6;
 
+  /// 가입 화면이 이메일 인증 단계를 보일지. 개인 서버 배포(private-deploy)는 메일을
+  /// 쓰지 않으므로 `--dart-define=SIGNUP_EMAIL_CODE=false` 로 끈다(서버도
+  /// `SIGNUP_EMAIL_VERIFICATION=false`). 끄면 코드 없이 가입을 보낸다.
+  static const bool enabled =
+      bool.fromEnvironment('SIGNUP_EMAIL_CODE', defaultValue: true);
+
   /// 트레이너 가입 코드의 목적 — 회원 가입 코드(`member_signup`)로는 가입되지 않는다.
   static const String purpose = 'trainer_signup';
 

@@ -72,7 +72,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
   /// 코드 여섯 자리를 다 넣었는가(#3038). 동의와 함께 가입 버튼을 켜는 조건이다.
   bool get _codeReady =>
-      _codeRequested && SignupEmailCode.isComplete(_code.text);
+      !SignupEmailCode.enabled ||
+      (_codeRequested && SignupEmailCode.isComplete(_code.text));
 
   bool get _canSubmit => _consentsReady && _codeReady;
 
@@ -342,8 +343,10 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
               ],
               onChanged: _onEmailEdited,
             ),
-            const SizedBox(height: OnCareSpacing.s8),
-            _emailCodeSection(l),
+            if (SignupEmailCode.enabled) ...<Widget>[
+              const SizedBox(height: OnCareSpacing.s8),
+              _emailCodeSection(l),
+            ],
             const SizedBox(height: OnCareSpacing.s12),
             // 왜 전화번호를 받는지 그 자리에서 말해 준다. 건강 앱이 이유 없이
             // 번호를 물으면 가입을 그만두는 쪽이 자연스럽다. 오류가 뜨면 도움말

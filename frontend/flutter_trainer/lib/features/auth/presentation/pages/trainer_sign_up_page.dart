@@ -86,7 +86,8 @@ class _TrainerSignUpPageState extends ConsumerState<TrainerSignUpPage> {
   }
 
   bool get _codeReady =>
-      _codeSent != null && SignupEmailCode.isComplete(_code.text);
+      !SignupEmailCode.enabled ||
+      (_codeSent != null && SignupEmailCode.isComplete(_code.text));
 
   /// 체크한 동의 항목(#2819). 필수 항목이 모두 있어야 가입 버튼이 켜진다.
   Set<String> _consents = <String>{};
@@ -343,8 +344,10 @@ class _TrainerSignUpPageState extends ConsumerState<TrainerSignUpPage> {
               ],
               onChanged: _onEmailEdited,
             ),
-            const SizedBox(height: OnCareSpacing.s8),
-            ..._codeStep(l, mutedStyle),
+            if (SignupEmailCode.enabled) ...<Widget>[
+              const SizedBox(height: OnCareSpacing.s8),
+              ..._codeStep(l, mutedStyle),
+            ],
             const SizedBox(height: OnCareSpacing.s12),
             AppTextField(
               key: const ValueKey<String>('trainer-signup-password'),
