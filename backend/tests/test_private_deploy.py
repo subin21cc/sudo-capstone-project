@@ -1,4 +1,4 @@
-"""개인 서버 배포(private-deploy): AI 키 없는 운영 기동·로컬 첨부 저장 — DB 불필요."""
+"""개인 서버 배포(private-deploy): AI 키·메일 없는 운영 기동·로컬 첨부 저장 — DB 불필요."""
 from __future__ import annotations
 
 import pytest
@@ -64,3 +64,18 @@ def test_prod_local_attachments_allowed_when_opted_in():
         allow_prod_local_attachments=True,
     )
     startup_checks.check(s)  # 막지 않는다
+
+
+def test_prod_signup_without_email_verification_blocked_by_default():
+    with pytest.raises(ValidationError):
+        _prod_no_ai(allow_prod_without_ai=True, signup_email_verification=False)
+
+
+def test_prod_signup_without_email_verification_allowed_when_opted_in():
+    s = _prod_no_ai(
+        allow_prod_without_ai=True,
+        allow_prod_without_mail=True,
+        signup_email_verification=False,
+    )
+    assert s.is_prod is True
+    assert s.signup_email_verification is False

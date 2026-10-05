@@ -259,6 +259,10 @@ class Settings(BaseSettings):
     # 회원·트레이너 가입 전에 그 주소로 보낸 6자리 코드를 확인한다. 끄면 가입이 코드를
     # 보지 않는다 — 기존 테스트·E2E(로그 발송)용이며, 운영(env=prod)에서는 끌 수 없다.
     signup_email_verification: bool = True
+    #: 개인 서버 배포(private-deploy) 전용. true 면 운영(env=prod)에서도
+    #: SIGNUP_EMAIL_VERIFICATION=false 를 허용한다 — 메일 없이 운영하는 서버용이다.
+    #: 다른 사람 이메일로 계정을 선점할 수 있다는 위험을 감수할 때만 켠다.
+    allow_prod_without_mail: bool = False
     # 코드 유효 시간(분)과 다시 받기까지 기다리는 시간(초).
     signup_email_code_minutes: int = 10
     signup_email_code_resend_seconds: int = 60
@@ -547,7 +551,7 @@ class Settings(BaseSettings):
             # 트레이너 찾기에 실존하지 않는 사람이 노출되고 통계가 오염된다(#2811).
             # 비밀번호 강도와 상관없이 막는다 — 시연이 필요하면 데모 전용 DB 를 쓴다.
             # 가입 이메일 확인을 끄면 남의 이메일로 계정을 선점할 수 있다(#3038).
-            if not self.signup_email_verification:
+            if not self.signup_email_verification and not self.allow_prod_without_mail:
                 raise ValueError(
                     "운영(env=prod)에서는 가입 이메일 확인을 끌 수 없습니다"
                     "(SIGNUP_EMAIL_VERIFICATION=true)."
