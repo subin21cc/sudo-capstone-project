@@ -15,13 +15,14 @@ upstream `CSE-Sudo/on-care` 에는 어떤 변경도 올리지 않는다.
 - 서버: `yoshi@flc.tailf0d4a.ts.net` (Ubuntu 20.04), 저장소 `~/oncare`
 - 첨부(채팅 사진·리포트 PDF): `/srv/oncare/data` (컨테이너 `/data`, 소유자 uid 10001)
 - AI(Gemini)는 쓰지 않는다: `ALLOW_PROD_WITHOUT_AI=true` — 사진 분석 503, 코치·조언은 규칙형 폴백
+- 메일은 쓰지 않는다: `ALLOW_PROD_WITHOUT_MAIL=true` + `SIGNUP_EMAIL_VERIFICATION=false`, 프론트는 `SIGNUP_EMAIL_CODE=false` — 가입에 인증 코드 없음, 비밀번호 재설정 메일 없음
 
 ## 브랜치
 
 | 브랜치 | 역할 |
 |---|---|
 | `main` | upstream main 의 그대로 복사본. 직접 커밋하지 않는다 |
-| `private-deploy` | `main` + 개인 배포 커밋 (`deploy/`, 백엔드 옵션 2개) |
+| `private-deploy` | `main` + 개인 배포 커밋 (`deploy/`, 백엔드·프론트 옵션) |
 
 upstream 반영:
 
@@ -50,7 +51,7 @@ bash deploy/frontend.sh
 ## 최초 1회 설정 (서버)
 
 1. `git clone -b private-deploy https://github.com/subin21cc/sudo-capstone-project.git ~/oncare`
-2. `cp deploy/env.private.example backend/.env` 후 `POSTGRES_PASSWORD`·`JWT_SECRET`·카카오·SMTP 채우기
+2. `cp deploy/env.private.example backend/.env` 후 `POSTGRES_PASSWORD`·`JWT_SECRET`·카카오 채우기
 3. `sudo install -d -o yoshi /srv/oncare/www && sudo install -d -o 10001 -g 10001 /srv/oncare/data`
 4. `sudo ln -sf ~/oncare/deploy/nginx/oncare.conf /etc/nginx/sites-enabled/oncare.conf && sudo nginx -t && sudo systemctl reload nginx`
 5. `sudo tailscale funnel --bg http://127.0.0.1:8090` (관리 콘솔에서 HTTPS 인증서·Funnel 허용 필요)
@@ -62,3 +63,6 @@ bash deploy/frontend.sh
 |---|---|
 | `ALLOW_PROD_WITHOUT_AI` | env=prod 에서 AI 키 없이 기동 |
 | `ALLOW_PROD_LOCAL_ATTACHMENTS` | env=prod 에서 첨부를 로컬(호스트 볼륨)에 저장 |
+| `ALLOW_PROD_WITHOUT_MAIL` | env=prod 에서 `SIGNUP_EMAIL_VERIFICATION=false` 허용 |
+
+프론트 빌드 옵션 `SIGNUP_EMAIL_CODE=false`: 가입 화면의 이메일 인증 단계를 숨긴다(두 앱 공통).

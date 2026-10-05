@@ -38,6 +38,7 @@ build_app() {
       --dart-define=RELEASE_SHA="$RELEASE_SHA" \
       --dart-define=KAKAO_JS_KEY="$KAKAO_JS_KEY" \
       --dart-define=USE_MOCK_API=false \
+      --dart-define=SIGNUP_EMAIL_CODE=false \
       --dart-define=API_BASE_URL="$API_BASE_URL" \
       --dart-define=ENV=prod
   )
